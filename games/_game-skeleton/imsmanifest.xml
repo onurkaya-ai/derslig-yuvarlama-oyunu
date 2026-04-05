@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    ===========================================================
+    DERSLİG SCORM 1.2 PAKET MANIFEST DOSYASI
+    ===========================================================
+    
+    Bu dosya SCORM 1.2 uyumlu LMS sistemlerine (Moodle, EBA,
+    Derslig LMS vb.) yükleme için gerekli paketleme bilgilerini
+    içerir.
+    
+    KURULUM:
+    1. Oyununuzun tüm dosyalarını bir klasöre koyun
+    2. Bu imsmanifest.xml dosyasını kök dizine yerleştirin
+    3. Tüm dosyaları .zip olarak sıkıştırın
+    4. .zip dosyasını LMS'e SCORM paketi olarak yükleyin
+    
+    ÖNEMLİ:
+    - identifier ve title alanlarını oyununuza göre değiştirin
+    - Tüm dosya yollarını (file) kontrol edin
+    - launch sayfası (href) index.html olmalıdır
+    ===========================================================
+-->
+<manifest identifier="derslig-oyun-adi"
+          version="1.0"
+          xmlns="http://www.imsproject.org/xsd/imscp_rootv1p1p2"
+          xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_rootv1p2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.imsproject.org/xsd/imscp_rootv1p1p2 imscp_rootv1p1p2.xsd http://www.adlnet.org/xsd/adlcp_rootv1p2 adlcp_rootv1p2.xsd">
+
+    <metadata>
+        <schema>ADL SCORM</schema>
+        <schemaversion>1.2</schemaversion>
+    </metadata>
+
+    <organizations default="derslig-org">
+        <organization identifier="derslig-org">
+            <title>Derslig - Oyun Adı</title>
+            <item identifier="item-1" identifierref="resource-1">
+                <title>Oyun Adı - Ana Sayfa</title>
+            </item>
+        </organization>
+    </organizations>
+
+    <resources>
+        <resource identifier="resource-1" type="webcontent" adlcp:scormtype="sco" href="index.html">
+            <!-- Ana Dosyalar -->
+            <file href="index.html"/>
+            
+            <!-- Ortak Stiller -->
+            <file href="../../assets/css/derslig-games.css"/>
+            
+            <!-- Ortak Scriptler -->
+            <file href="../../assets/js/derslig-core.js"/>
+            <file href="../../assets/js/derslig-lobby.js"/>
+            <file href="../../assets/js/derslig-game-engine.js"/>
+            <file href="../../assets/js/derslig-tournament.js"/>
+            
+            <!-- Sesler -->
+            <file href="../../assets/sounds/true.mp3"/>
+            <file href="../../assets/sounds/false.mp3"/>
+            <file href="../../assets/sounds/select.mp3"/>
+            <file href="../../assets/sounds/start.mp3"/>
+            <file href="../../assets/sounds/time.mp3"/>
+            
+            <!-- Oyuna Özel Dosyalar (gerektiğinde ekleyin) -->
+            <!-- <file href="app.js"/> -->
+            <!-- <file href="game-styles.css"/> -->
+        </resource>
+    </resources>
+</manifest>

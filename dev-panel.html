@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Derslig Oyun Geliştirici Paneli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f1117;
+            --bg-surface: #181b24;
+            --bg-card: #1e2230;
+            --bg-hover: #252a3a;
+            --primary: #43c4f7;
+            --primary-glow: rgba(67, 196, 247, 0.15);
+            --accent-gold: #f7c948;
+            --accent-pink: #e50069;
+            --accent-green: #4CAF50;
+            --text: #e0e6f0;
+            --text-dim: #8891a5;
+            --border: rgba(255,255,255,0.06);
+            --font: 'Inter', -apple-system, sans-serif;
+            --radius: 16px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ==================== HEADER ==================== */
+        .dev-header {
+            background: linear-gradient(135deg, var(--bg-surface) 0%, #141822 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 28px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .dev-header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dev-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .dev-logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), #5dd3f5);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(67, 196, 247, 0.3);
+        }
+
+        .dev-logo-text h1 {
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .dev-logo-text span {
+            font-size: 13px;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .dev-version {
+            padding: 6px 14px;
+            background: var(--primary-glow);
+            border: 1px solid rgba(67,196,247,0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .dev-nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 40px 0;
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dev-nav-tab {
+            padding: 12px 22px;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-family: var(--font);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .dev-nav-tab:hover {
+            color: var(--text);
+            background: var(--bg-hover);
+        }
+
+        .dev-nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--primary-glow);
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .dev-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 40px 60px;
+        }
+
+        .dev-tab-content {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+
+        .dev-tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== SECTION ==================== */
+        .dev-section {
+            margin-bottom: 32px;
+        }
+
+        .dev-section-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dev-section-title .badge {
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-required { background: rgba(229,0,105,0.15); color: var(--accent-pink); }
+        .badge-optional { background: rgba(76,175,80,0.15); color: var(--accent-green); }
+
+        /* ==================== CARDS ==================== */
+        .dev-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+
+        .dev-card:hover {
+            border-color: rgba(67,196,247,0.15);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+        }
+
+        .dev-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .dev-card p, .dev-card li {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-dim);
+        }
+
+        .dev-card ul {
+            padding-left: 20px;
+        }
+
+        .dev-card li {
+            margin-bottom: 6px;
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .dev-code-block {
+            background: #0d0f15;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 14px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .dev-code-block pre {
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #c9d1d9;
+            white-space: pre;
+            margin: 0;
+        }
+
+        .dev-code-label {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            padding: 2px 10px;
+            background: var(--primary-glow);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .code-comment { color: #6a737d; }
+        .code-keyword { color: #ff7b72; }
+        .code-string { color: #a5d6ff; }
+        .code-tag { color: #7ee787; }
+        .code-attr { color: #d2a8ff; }
+
+        /* ==================== FILE TREE ==================== */
+        .dev-file-tree {
+            background: #0d0f15;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin: 14px 0;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-dim);
+        }
+
+        .dev-file-tree .folder { color: var(--primary); font-weight: 700; }
+        .dev-file-tree .file { color: #c9d1d9; }
+        .dev-file-tree .important { color: var(--accent-gold); font-weight: 700; }
+        .dev-file-tree .desc { color: #6a737d; font-style: italic; }
+
+        /* ==================== CHECKLIST ==================== */
+        .dev-checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .dev-checklist li {
+            padding: 14px 18px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s;
+        }
+
+        .dev-checklist li:hover {
+            background: var(--bg-hover);
+        }
+
+        .dev-checklist .check-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dev-checklist li.checked .check-icon {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: #fff;
+        }
+
+        .dev-checklist li.checked {
+            opacity: 0.5;
+            text-decoration: line-through;
+        }
+
+        /* ==================== ALERT BOXES ==================== */
+        .dev-alert {
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 14px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .dev-alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+        .dev-alert.info {
+            background: rgba(67,196,247,0.08);
+            border: 1px solid rgba(67,196,247,0.15);
+            color: var(--primary);
+        }
+
+        .dev-alert.warning {
+            background: rgba(247,201,72,0.08);
+            border: 1px solid rgba(247,201,72,0.15);
+            color: var(--accent-gold);
+        }
+
+        .dev-alert.danger {
+            background: rgba(229,0,105,0.08);
+            border: 1px solid rgba(229,0,105,0.15);
+            color: var(--accent-pink);
+        }
+
+        .dev-alert.success {
+            background: rgba(76,175,80,0.08);
+            border: 1px solid rgba(76,175,80,0.15);
+            color: var(--accent-green);
+        }
+
+        /* ==================== STEPS ==================== */
+        .dev-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 14px 0;
+        }
+
+        .dev-step {
+            display: flex;
+            gap: 16px;
+            padding-bottom: 24px;
+            position: relative;
+        }
+
+        .dev-step::before {
+            content: '';
+            position: absolute;
+            left: 17px;
+            top: 38px;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .dev-step:last-child::before { display: none; }
+
+        .dev-step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dev-step-content h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+            margin-top: 6px;
+        }
+
+        .dev-step-content p {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* ==================== TABLE ==================== */
+        .dev-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+        }
+
+        .dev-table th {
+            background: var(--bg-surface);
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dev-table td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dev-table tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .dev-table code {
+            padding: 2px 8px;
+            background: rgba(67,196,247,0.1);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--primary);
+            font-family: 'Cascadia Code', monospace;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .dev-header { padding: 20px; }
+            .dev-nav { padding: 14px 20px 0; overflow-x: auto; }
+            .dev-main { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="dev-header">
+        <div class="dev-header-inner">
+            <div class="dev-logo">
+                <div class="dev-logo-icon">D</div>
+                <div class="dev-logo-text">
+                    <h1>Derslig Developer Console</h1>
+                    <span>Oyun Geliştirme ve Paketleme Merkezi</span>
+                </div>
+            </div>
+            <div class="dev-version">v1.0.0</div>
+        </div>
+    </header>
+
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="dev-nav" id="dev-nav">
+        <button class="dev-nav-tab active" data-tab="overview">Genel Bakış</button>
+        <button class="dev-nav-tab" data-tab="skeleton">Oyun İskeleti</button>
+        <button class="dev-nav-tab" data-tab="scorm">SCORM Paketleme</button>
+        <button class="dev-nav-tab" data-tab="seo">SEO Uyumları</button>
+        <button class="dev-nav-tab" data-tab="checklist">Denetim Listesi</button>
+    </nav>
+
+    <!-- ==================== MAIN ==================== -->
+    <main class="dev-main">
+
+        <!-- TAB: GENEL BAKIŞ -->
+        <div class="dev-tab-content active" id="tab-overview">
+            <div class="dev-section">
+                <div class="dev-section-title">Derslig Oyun Mimarisi</div>
+                <div class="dev-card">
+                    <p>Derslig oyunları, tekrar kullanılabilir bir <strong>Core SDK</strong> üzerine inşa edilmiş modüler yapıdadır.
+                    Her oyun, aynı lobby, turnuva ve SCORM altyapısını paylaşır. Bu sayede yeni bir oyun oluşturmak dakikalar içinde mümkün olur.</p>
+                </div>
+            </div>
+
+            <div class="dev-section">
+                <div class="dev-section-title">Klasör Yapısı</div>
+                <div class="dev-file-tree">
+<span class="folder">📁 Derslig Oyun Oluşturma Projesi/</span>
+├── <span class="folder">📁 assets/</span>
+│   ├── <span class="folder">📁 css/</span>
+│   │   └── <span class="important">derslig-games.css</span> <span class="desc">← Ortak tasarım sistemi</span>
+│   ├── <span class="folder">📁 js/</span>
+│   │   ├── <span class="important">derslig-core.js</span> <span class="desc">← SCORM, Ses, SDK</span>
+│   │   ├── <span class="important">derslig-lobby.js</span> <span class="desc">← Lobi arayüzü</span>
+│   │   ├── <span class="file">derslig-game-engine.js</span> <span class="desc">← Yuvarlama motoru</span>
+│   │   └── <span class="important">derslig-tournament.js</span> <span class="desc">← Turnuva sistemi</span>
+│   └── <span class="folder">📁 sounds/</span>
+│       ├── <span class="file">true.mp3, false.mp3, select.mp3</span>
+│       ├── <span class="file">start.mp3, time.mp3</span>
+├── <span class="folder">📁 games/</span>
+│   ├── <span class="folder">📁 yuvarlama-oyunu/</span> <span class="desc">← Mevcut oyun</span>
+│   │   └── <span class="file">index.html</span>
+│   └── <span class="folder">📁 _game-skeleton/</span> <span class="desc">← ⭐ Yeni oyun şablonu</span>
+│       ├── <span class="important">index.html</span> <span class="desc">← SEO hazır başlatıcı</span>
+│       ├── <span class="important">app.js</span> <span class="desc">← Motor iskeleti</span>
+│       └── <span class="important">imsmanifest.xml</span> <span class="desc">← SCORM paketi</span>
+└── <span class="file">dev-panel.html</span> <span class="desc">← Bu sayfa</span>
+                </div>
+            </div>
+
+            <div class="dev-section">
+                <div class="dev-section-title">Modül Mimarisi</div>
+                <div class="dev-card">
+                    <table class="dev-table">
+                        <thead>
+                            <tr>
+                                <th>Modül</th>
+                                <th>Dosya</th>
+                                <th>Sorumluluk</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Core SDK</strong></td>
+                                <td><code>derslig-core.js</code></td>
+                                <td>SCORM iletişimi, ses yönetimi (CDN + fallback), puan takibi</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Lobby</strong></td>
+                                <td><code>derslig-lobby.js</code></td>
+                                <td>Ana menü, oyun modu seçimi, ayarlar paneli, ses/tam ekran kontrolleri</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Game Engine</strong></td>
+                                <td><code>Oyuna özel</code></td>
+                                <td>Soru üretimi, cevap kontrolü, tek/çoklu oyuncu render, sonuç ekranı</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Turnuva</strong></td>
+                                <td><code>derslig-tournament.js</code></td>
+                                <td>Sınıf yönetimi, bracket oluşturma, maç akışı, şampiyon ekranı</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Stil Sistemi</strong></td>
+                                <td><code>derslig-games.css</code></td>
+                                <td>Tüm bileşenlerin görsel tasarımı (16:9 kapsayıcı, butonlar, paneller)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: OYUN İSKELETİ -->
+        <div class="dev-tab-content" id="tab-skeleton">
+            <div class="dev-section">
+                <div class="dev-section-title">Yeni Oyun Oluşturma Adımları</div>
+                
+                <div class="dev-steps">
+                    <div class="dev-step">
+                        <div class="dev-step-number">1</div>
+                        <div class="dev-step-content">
+                            <h4>İskelet Klasörünü Kopyalayın</h4>
+                            <p><code>games/_game-skeleton/</code> klasörünü kopyalayıp yeni oyununuzun adıyla yeniden adlandırın. Örn: <code>games/carpma-savasi/</code></p>
+                        </div>
+                    </div>
+                    <div class="dev-step">
+                        <div class="dev-step-number">2</div>
+                        <div class="dev-step-content">
+                            <h4>SEO Etiketlerini Güncelleyin</h4>
+                            <p><code>index.html</code> içindeki <code>&lt;title&gt;</code>, <code>&lt;meta description&gt;</code> ve <code>og:*</code> etiketlerini oyununuza göre düzenleyin.</p>
+                        </div>
+                    </div>
+                    <div class="dev-step">
+                        <div class="dev-step-number">3</div>
+                        <div class="dev-step-content">
+                            <h4>Oyun Motorunuzu Yazın</h4>
+                            <p><code>app.js</code> dosyasındaki <code>_createQuestion()</code> fonksiyonunu kendi soru mantığınızla değiştirin. Bu fonksiyon <code>{ display, label, correct, options }</code> döndürmelidir.</p>
+                        </div>
+                    </div>
+                    <div class="dev-step">
+                        <div class="dev-step-number">4</div>
+                        <div class="dev-step-content">
+                            <h4>Lobby Callback'ini Bağlayın</h4>
+                            <p><code>index.html</code> altındaki <code>onStart</code> callback'inde kendi motorunuzu çağırın: <code>GameEngine.start('dl-game-layer', mod, ayarlar);</code></p>
+                        </div>
+                    </div>
+                    <div class="dev-step">
+                        <div class="dev-step-number">5</div>
+                        <div class="dev-step-content">
+                            <h4>Test Edin ve Paketleyin</h4>
+                            <p>Tarayıcıda açıp test edin. Her şey çalıştığında SCORM sekmesindeki talimatlarla paketleyin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dev-section">
+                <div class="dev-section-title">Soru Üretici Şablonu <span class="badge badge-required">Zorunlu</span></div>
+                <div class="dev-code-block">
+                    <div class="dev-code-label">app.js</div>
+                    <pre><span class="code-keyword">_createQuestion</span>: <span class="code-keyword">function</span>() {
+    <span class="code-comment">// Soru mantığınızı buraya yazın</span>
+    <span class="code-keyword">const</span> a = Math.floor(Math.random() * 50) + 1;
+    <span class="code-keyword">const</span> b = Math.floor(Math.random() * 50) + 1;
+    <span class="code-keyword">const</span> correct = a * b;
+
+    <span class="code-keyword">const</span> options = [correct, correct + 5, correct - 3]
+        .sort(() => Math.random() - 0.5);
+
+    <span class="code-keyword">return</span> {
+        display: <span class="code-string">`${a} × ${b}`</span>,
+        label: <span class="code-string">'Çarpımı Bul'</span>,
+        correct: correct,
+        options: options
+    };
+}</pre>
+                </div>
+            </div>
+
+            <div class="dev-section">
+                <div class="dev-section-title">Lobby Ayarları <span class="badge badge-optional">İsteğe Bağlı</span></div>
+                <div class="dev-card">
+                    <p>Lobby'ye özel ayarlar eklemek için <code>DersligLobby._showSettings()</code> fonksiyonundaki ayar seçeneklerini düzenleyin. 
+                    Ayarlar <code>{ sure, basamakSayisi, yuvarlamaTipi }</code> objesine kaydedilir ve <code>onStart</code> callback'ine aktarılır.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: SCORM PAKETLEME -->
+        <div class="dev-tab-content" id="tab-scorm">
+            <div class="dev-section">
+                <div class="dev-section-title">SCORM 1.2 Paketleme Rehberi</div>
+                
+                <div class="dev-alert info">
+                    <span class="dev-alert-icon">ℹ</span>
+                    <div>Derslig oyunları <strong>SCORM 1.2</strong> standardını kullanır. Bu standart EBA, Moodle ve çoğu LMS platformu ile uyumludur.</div>
+                </div>
+
+                <div class="dev-steps">
+                    <div class="dev-step">
+                        <div class="dev-step-number">1</div>
+                        <div class="dev-step-content">
+                            <h4>Dosyaları Hazırlayın</h4>
+                            <p>Oyun klasörünüze tüm gerekli dosyaları (index.html, app.js, stil dosyaları) ve <code>imsmanifest.xml</code> dosyasını yerleştirin.</p>
+                        </div>
+                    </div>
+                    <div class="dev-step">
+                        <div class="dev-step-number">2</div>
+                        <div class="dev-step-content">
+                            <h4>imsmanifest.xml Düzenleyin</h4>
+                            <p><code>identifier</code>, <code>title</code> ve <code>&lt;file&gt;</code> etiketlerini oyununuza göre güncelleyin. Tüm kaynak dosyalarının <code>&lt;resource&gt;</code> altında tanımlı olduğundan emin olun.</p>
+                        </div>
+                    </div>
+                    <div class="dev-step">
+                        <div class="dev-step-number">3</div>
+                        <div class="dev-step-content">
+                            <h4>ZIP Olarak Sıkıştırın</h4>
+                            <p>Klasörün içindekileri (klasörün kendisi değil!) seçip <code>.zip</code> dosyası oluşturun. <code>imsmanifest.xml</code> dosyası sıkıştırılmış dosyanın kök dizininde olmalıdır.</p>
+                        </div>
+                    </div>
+                    <div class="dev-step">
+                        <div class="dev-step-number">4</div>
+                        <div class="dev-step-content">
+                            <h4>LMS'e Yükleyin</h4>
+                            <p>EBA veya Moodle'da "SCORM Paketi Ekle" seçeneğinden <code>.zip</code> dosyasını yükleyin. Sistem otomatik olarak tanıyacaktır.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dev-alert warning">
+                    <span class="dev-alert-icon">⚠</span>
+                    <div><strong>Önemli:</strong> SCORM paketi oluştururken, <code>assets/</code> klasörünün tamamını oyun klasörüne kopyalamayı unutmayın.
+                    Bağıl yollar (<code>../../assets/</code>) LMS içinden çalışmaz. Aynı dizine kopyalanmalıdır.</div>
+                </div>
+            </div>
+
+            <div class="dev-section">
+                <div class="dev-section-title">SCORM API Entegrasyonu</div>
+                <div class="dev-card">
+                    <h3>derslig-core.js Otomatik Yapıyor</h3>
+                    <p>Core SDK, SCORM API'yi otomatik olarak bulur ve iletişim kurar. Sizin ek bir şey yapmanıza gerek yoktur. İşte kullandığı API çağrıları:</p>
+                    <table class="dev-table">
+                        <thead>
+                            <tr>
+                                <th>Fonksiyon</th>
+                                <th>SCORM Çağrısı</th>
+                                <th>Açıklama</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Derslig.init()</code></td>
+                                <td><code>LMSInitialize("")</code></td>
+                                <td>SCORM oturumunu başlatır</td>
+                            </tr>
+                            <tr>
+                                <td><code>Derslig.dogruCevap()</code></td>
+                                <td><code>LMSSetValue("cmi.core.score.raw")</code></td>
+                                <td>Puanı LMS'e gönderir</td>
+                            </tr>
+                            <tr>
+                                <td><code>Derslig.bitir()</code></td>
+                                <td><code>LMSCommit("")</code></td>
+                                <td>Son durumu onaylar</td>
+                            </tr>
+                            <tr>
+                                <td><code>Derslig.cikis()</code></td>
+                                <td><code>LMSFinish("")</code></td>
+                                <td>SCORM oturumunu kapatır</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: SEO UYUMLARI -->
+        <div class="dev-tab-content" id="tab-seo">
+            <div class="dev-section">
+                <div class="dev-section-title">SEO ve Erişilebilirlik Standartları</div>
+                
+                <div class="dev-card">
+                    <h3>Zorunlu Meta Etiketleri</h3>
+                    <div class="dev-code-block">
+                        <div class="dev-code-label">index.html</div>
+                        <pre><span class="code-comment">&lt;!-- Temel SEO --&gt;</span>
+<span class="code-tag">&lt;title&gt;</span>Oyun Adı - Derslig<span class="code-tag">&lt;/title&gt;</span>
+<span class="code-tag">&lt;meta</span> <span class="code-attr">name</span>=<span class="code-string">"description"</span> <span class="code-attr">content</span>=<span class="code-string">"Oyun açıklaması..."</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;meta</span> <span class="code-attr">name</span>=<span class="code-string">"keywords"</span> <span class="code-attr">content</span>=<span class="code-string">"derslig, eğitim, oyun"</span><span class="code-tag">&gt;</span>
+
+<span class="code-comment">&lt;!-- Open Graph (Sosyal Medya) --&gt;</span>
+<span class="code-tag">&lt;meta</span> <span class="code-attr">property</span>=<span class="code-string">"og:title"</span> <span class="code-attr">content</span>=<span class="code-string">"Oyun Adı - Derslig"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;meta</span> <span class="code-attr">property</span>=<span class="code-string">"og:description"</span> <span class="code-attr">content</span>=<span class="code-string">"Oyun açıklaması..."</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;meta</span> <span class="code-attr">property</span>=<span class="code-string">"og:type"</span> <span class="code-attr">content</span>=<span class="code-string">"website"</span><span class="code-tag">&gt;</span>
+
+<span class="code-comment">&lt;!-- Mobil Uyumluluk --&gt;</span>
+<span class="code-tag">&lt;meta</span> <span class="code-attr">name</span>=<span class="code-string">"viewport"</span> <span class="code-attr">content</span>=<span class="code-string">"width=device-width, initial-scale=1.0"</span><span class="code-tag">&gt;</span>
+<span class="code-tag">&lt;meta</span> <span class="code-attr">name</span>=<span class="code-string">"theme-color"</span> <span class="code-attr">content</span>=<span class="code-string">"#43c4f7"</span><span class="code-tag">&gt;</span></pre>
+                    </div>
+                </div>
+
+                <div class="dev-card">
+                    <h3>Erişilebilirlik (Accessibility) Kuralları</h3>
+                    <ul>
+                        <li><strong>ARIA etiketleri:</strong> Ana konteyner <code>role="main"</code> ve <code>aria-label</code> taşımalıdır</li>
+                        <li><strong>Semantik HTML:</strong> <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;button&gt;</code> doğru kullanılmalıdır</li>
+                        <li><strong>Klavye navigasyonu:</strong> Butonlar <code>Tab</code> ile erişilebilir, <code>Enter</code> ile tetiklenebilir olmalıdır</li>
+                        <li><strong>Renk kontrastı:</strong> Metin ve arka plan arasında minimum 4.5:1 kontrast oranı sağlanmalıdır</li>
+                        <li><strong>Dekoratif emojiler:</strong> Dekoratif emojilere <code>aria-hidden="true"</code> eklenmelidir</li>
+                    </ul>
+                </div>
+
+                <div class="dev-card">
+                    <h3>Performans Optimizasyonu</h3>
+                    <ul>
+                        <li><strong>Font:</strong> Google Fonts'tan sadece kullanılan ağırlıkları yükleyin (<code>display=swap</code>)</li>
+                        <li><strong>Sesler:</strong> CDN üzerinden yüklenir, başarısızlık halinde local fallback devreye girer</li>
+                        <li><strong>DOM:</strong> Soru geçişlerinde sadece değişen elementler güncellenir (tam innerHTML yenilenmez)</li>
+                        <li><strong>Animasyonlar:</strong> Sadece <code>transform</code> ve <code>opacity</code> animate edilir (GPU hızlandırmalı)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: DENETİM LİSTESİ -->
+        <div class="dev-tab-content" id="tab-checklist">
+            <div class="dev-section">
+                <div class="dev-section-title">Yayınlama Öncesi Kontrol Listesi</div>
+                <div class="dev-alert info">
+                    <span class="dev-alert-icon">ℹ</span>
+                    <div>Oyununuzu yayınlamadan önce aşağıdaki tüm maddelerin tamamlandığından emin olun. Maddelere tıklayarak işaretleyebilirsiniz.</div>
+                </div>
+                
+                <ul class="dev-checklist" id="dev-checklist">
+                    <li><div class="check-icon"></div><span><code>&lt;title&gt;</code> etiketi oyuna özgü ve açıklayıcı</span></li>
+                    <li><div class="check-icon"></div><span><code>&lt;meta description&gt;</code> 120-160 karakter arası</span></li>
+                    <li><div class="check-icon"></div><span>Open Graph etiketleri (<code>og:title</code>, <code>og:description</code>) dolu</span></li>
+                    <li><div class="check-icon"></div><span><code>viewport</code> meta etiketi mevcut</span></li>
+                    <li><div class="check-icon"></div><span><code>theme-color</code> meta etiketi <code>#43c4f7</code> olarak ayarlanmış</span></li>
+                    <li><div class="check-icon"></div><span>Ana konteyner <code>role="main"</code> ve <code>aria-label</code> taşıyor</span></li>
+                    <li><div class="check-icon"></div><span>Tüm interaktif elementlerin benzersiz <code>id</code> değerleri var</span></li>
+                    <li><div class="check-icon"></div><span>Tek Oyuncu modu hatasız çalışıyor</span></li>
+                    <li><div class="check-icon"></div><span>Çoklu Oyuncu (2-3-4) modları test edildi</span></li>
+                    <li><div class="check-icon"></div><span>Turnuva modu kurulumdan şampiyonluk ekranına kadar çalışıyor</span></li>
+                    <li><div class="check-icon"></div><span>Ayarlar paneli değişiklikleri doğru uygulanıyor (İptal ve Kaydet)</span></li>
+                    <li><div class="check-icon"></div><span>Ses efektleri tüm aksiyonlarda çalışıyor</span></li>
+                    <li><div class="check-icon"></div><span>Tam ekran butonu çalışıyor</span></li>
+                    <li><div class="check-icon"></div><span>Sakin Ol ekranı 3 yanlış sonra doğru tetikleniyor</span></li>
+                    <li><div class="check-icon"></div><span><code>imsmanifest.xml</code> oyuna göre düzenlendi</span></li>
+                    <li><div class="check-icon"></div><span>SCORM paketi (.zip) oluşturuldu ve test edildi</span></li>
+                    <li><div class="check-icon"></div><span>Tarayıcı konsolunda hata yok</span></li>
+                </ul>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== SCRIPT ==================== -->
+    <script>
+        // Tab Navigation
+        document.querySelectorAll('.dev-nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.dev-nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.dev-tab-content').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Checklist Interactivity
+        document.querySelectorAll('.dev-checklist li').forEach(item => {
+            item.addEventListener('click', function() {
+                this.classList.toggle('checked');
+                const icon = this.querySelector('.check-icon');
+                icon.textContent = this.classList.contains('checked') ? '✓' : '';
+
+                // LocalStorage kayıt
+                saveChecklist();
+            });
+        });
+
+        function saveChecklist() {
+            const states = [];
+            document.querySelectorAll('.dev-checklist li').forEach(item => {
+                states.push(item.classList.contains('checked'));
+            });
+            localStorage.setItem('derslig_dev_checklist', JSON.stringify(states));
+        }
+
+        function loadChecklist() {
+            const data = localStorage.getItem('derslig_dev_checklist');
+            if(!data) return;
+            const states = JSON.parse(data);
+            document.querySelectorAll('.dev-checklist li').forEach((item, i) => {
+                if(states[i]) {
+                    item.classList.add('checked');
+                    item.querySelector('.check-icon').textContent = '✓';
+                }
+            });
+        }
+
+        loadChecklist();
+    </script>
+</body>
+</html>

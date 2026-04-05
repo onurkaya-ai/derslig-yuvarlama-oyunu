@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- SEO Meta Etiketleri -->
+    <title>Oyun Adı - Derslig</title>
+    <meta name="description" content="Oyun açıklaması buraya yazılacak. İlkokul ve ortaokul öğrencileri için eğitici matematik oyunu.">
+    <meta name="keywords" content="derslig, eğitim, oyun, matematik, ilkokul, ortaokul">
+    <meta name="author" content="Derslig">
+    
+    <!-- Open Graph (SEO / Sosyal Medya) -->
+    <meta property="og:title" content="Oyun Adı - Derslig">
+    <meta property="og:description" content="Oyun açıklaması buraya yazılacak.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.derslig.com/games/oyun-adi/">
+    <!-- <meta property="og:image" content="https://www.derslig.com/games/oyun-adi/thumbnail.png"> -->
+    
+    <!-- Mobile Web App -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#43c4f7">
+
+    <!-- Ortak Stil Sistemi -->
+    <link rel="stylesheet" href="../../assets/css/derslig-games.css">
+    
+    <!-- Oyuna Özel Stiller (isteğe bağlı) -->
+    <!-- <link rel="stylesheet" href="game-styles.css"> -->
+</head>
+<body>
+
+    <div id="derslig-app" role="main" aria-label="Oyun alanı">
+        <!-- Dinamik olarak doldurulacak -->
+    </div>
+
+    <!-- ==================== ORTAK MODÜLLER ==================== -->
+    <script src="../../assets/js/derslig-core.js"></script>
+    <script src="../../assets/js/derslig-lobby.js"></script>
+    <script src="../../assets/js/derslig-game-engine.js"></script>
+    <script src="../../assets/js/derslig-tournament.js"></script>
+
+    <!-- ==================== OYUN MOTORU ==================== -->
+    <!-- Oyuna özel engine dosyanızı buraya ekleyin -->
+    <!-- <script src="game-engine.js"></script> -->
+
+    <!-- ==================== OYUN BAŞLATMA ==================== -->
+    <script>
+        /**
+         * ===========================================================
+         * DERSLİG OYUN İSKELETİ - BAŞLATMA REHBERİ
+         * ===========================================================
+         * 
+         * Bu dosya yeni bir Derslig oyunu oluştururken kullanılacak
+         * temel şablondur. Aşağıdaki adımları izleyiniz:
+         * 
+         * 1. Bu klasörü kopyalayın ve yeni oyununuza göre adlandırın
+         *    Örn: games/carpma-savasi/
+         * 
+         * 2. Oyun motorunuzu (game-engine.js) bu klasöre ekleyin
+         * 
+         * 3. Aşağıdaki DersligLobby.create() parametrelerini 
+         *    oyununuza göre düzenleyin
+         * 
+         * 4. onStart callback'i içinde kendi oyun motorunuzu 
+         *    çağırın
+         * 
+         * 5. SEO etiketlerini (title, description, og:*) 
+         *    oyununuza göre güncelleyin
+         * ===========================================================
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Lobby'i Oluştur
+            DersligLobby.create('derslig-app', {
+                title: "OYUN ADI",        // Büyük başlık
+                showDuoMode: true,         // Çoklu oyuncu modu aktif mi?
+                
+                defaultSettings: { 
+                    sure: 60,              // Varsayılan süre (saniye)
+                    basamakSayisi: 2,      // Oyuna özel ayar
+                    yuvarlamaTipi: 'onluk' // Oyuna özel ayar
+                },
+                
+                // Oyun başlatma callback'i
+                onStart: function(mod, ayarlar) {
+                    /**
+                     * mod: 'tek', 'multi-2', 'multi-3', 'multi-4'
+                     * ayarlar: { sure, basamakSayisi, yuvarlamaTipi }
+                     * 
+                     * Kendi oyun motorunuzu burada çağırın:
+                     * OyunMotoru.start('dl-game-layer', mod, ayarlar);
+                     */
+                    console.log('Oyun başlatılıyor:', mod, ayarlar);
+                    alert('Oyun motoru henüz bağlanmadı! game-engine.js dosyasını ekleyin.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yuvarla Kazan! - Derslig</title>
+    <meta name="description" content="Yuvarla Kazan! ile sayıları onluğa ve yüzlüğe yuvarlamayı eğlenerek öğrenin! İlkokul ve ortaokul öğrencileri için yarış temalı matematik oyunu.">
+    
+    <!-- Ortak Stil Sistemi -->
+    <link rel="stylesheet" href="../../assets/css/derslig-games.css">
+</head>
+<body>
+
+    <div id="derslig-app">
+        <!-- Dinamik olarak doldurulacak -->
+    </div>
+
+    <!-- Ortak Modüller -->
+    <script src="../../assets/js/derslig-core.js"></script>
+    <script src="../../assets/js/derslig-lobby.js"></script>
+    <script src="../../assets/js/derslig-game-engine.js"></script>
+    <script src="../../assets/js/derslig-tournament.js"></script>
+
+    <!-- Oyun Başlatma -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lobby'i Oluştur
+            DersligLobby.create('derslig-app', {
+                title: "YUVARLA KAZAN!",
+                showDuoMode: true,
+                defaultSettings: { 
+                    sure: 60,
+                    sinifSeviyesi: 3,
+                    basamakSayisi: 3,
+                    yuvarlamaTipi: 'karisik-3'
+                },
+                
+                // Başla butonuna basılınca Oyun Motorunu tetikle
+                onStart: function(mod, ayarlar) {
+                    YuvarlamaEngine.start('dl-game-layer', mod, ayarlar);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

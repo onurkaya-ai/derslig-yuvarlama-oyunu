@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 200">
+  <defs>
+    <!-- Beyaz metin için gölge ve parlama -->
+    <filter id="textShadow" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="3" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="12" flood-color="#fff" flood-opacity="0.25"/>
+    </filter>
+    <!-- Altın gradient -->
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe066"/>
+      <stop offset="50%" stop-color="#f7c948"/>
+      <stop offset="100%" stop-color="#e5a800"/>
+    </linearGradient>
+    <!-- Altın metin gölge -->
+    <filter id="goldShadow" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="2" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.4"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#f7c948" flood-opacity="0.35"/>
+    </filter>
+    <!-- Dekoratif süsleme daire -->
+    <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Dekoratif küçük yıldızlar -->
+  <circle cx="60" cy="50" r="4" fill="url(#starGlow)" opacity="0.7"/>
+  <circle cx="640" cy="45" r="5" fill="url(#starGlow)" opacity="0.6"/>
+  <circle cx="120" cy="160" r="3" fill="url(#starGlow)" opacity="0.5"/>
+  <circle cx="580" cy="165" r="4" fill="url(#starGlow)" opacity="0.6"/>
+
+  <!-- YUVARLA yazısı (beyaz, kalın, şekilli) -->
+  <text x="350" y="95" 
+        font-family="'Poppins','Segoe UI',Arial,sans-serif" 
+        font-size="88" 
+        font-weight="900" 
+        text-anchor="middle" 
+        fill="#fff" 
+        stroke="#fff" 
+        stroke-width="1"
+        filter="url(#textShadow)"
+        letter-spacing="8">YUVARLA</text>
+
+  <!-- KAZAN! yazısı (altın gradient, italik etki) -->
+  <text x="350" y="175" 
+        font-family="'Poppins','Segoe UI',Arial,sans-serif" 
+        font-size="74" 
+        font-weight="900" 
+        font-style="italic"
+        text-anchor="middle" 
+        fill="url(#goldGrad)" 
+        stroke="#c48c00" 
+        stroke-width="1.5"
+        filter="url(#goldShadow)"
+        letter-spacing="12">KAZAN!</text>
+
+  <!-- ≈ sembolü (solda) -->
+  <text x="45" y="120"
+        font-family="'Poppins',Arial,sans-serif"
+        font-size="52"
+        font-weight="700"
+        fill="url(#goldGrad)"
+        opacity="0.5">≈</text>
+
+  <!-- Sayı parçacıkları (dekoratif) -->
+  <text x="660" y="110"
+        font-family="'Poppins',Arial,sans-serif"
+        font-size="36"
+        font-weight="700"
+        fill="#fff"
+        opacity="0.25">10</text>
+  <text x="82" y="175"
+        font-family="'Poppins',Arial,sans-serif"
+        font-size="28"
+        font-weight="700"
+        fill="#fff"
+        opacity="0.2">50</text>
+</svg>
