@@ -39,6 +39,33 @@ body, html {
     overflow: hidden;
 }
 
+/* Tam Ekran Modu */
+:fullscreen #derslig-app,
+:fullscreen .dl-game-container,
+:-webkit-full-screen #derslig-app,
+:-webkit-full-screen .dl-game-container {
+    max-width: 100% !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    aspect-ratio: auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+:fullscreen body,
+:-webkit-full-screen body {
+    background: #000 !important;
+}
+
+:fullscreen .dl-game-ui,
+:-webkit-full-screen .dl-game-ui {
+    max-width: 100% !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    aspect-ratio: auto !important;
+    border-radius: 0 !important;
+}
+
 /* ==================== BG PATTERN (Matematik Sembolleri) ==================== */
 .dl-bg-pattern {
     position: absolute;

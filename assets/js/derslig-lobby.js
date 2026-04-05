@@ -6,7 +6,7 @@ const DersligLobby = {
     _config: null,
     _settings: {
         basamakSayisi: 2,
-        yuvarlamaTipi: 'onluk',
+        yuvarlamaTipi: 'rastgele',
         sure: 60
     },
 
@@ -204,8 +204,8 @@ const DersligLobby = {
         overlay.className = 'dl-settings-overlay active';
 
         // Eski karışık ayarları temizle
-        if(!['onluk', 'yuzluk', 'ondalik'].includes(tempSettings.yuvarlamaTipi)) {
-            tempSettings.yuvarlamaTipi = 'onluk';
+        if(!['onluk', 'yuzluk', 'ondalik', 'rastgele'].includes(tempSettings.yuvarlamaTipi)) {
+            tempSettings.yuvarlamaTipi = 'rastgele';
             tempSettings.basamakSayisi = 2;
         }
 
@@ -218,6 +218,7 @@ const DersligLobby = {
                     <div class="dl-settings-column">
                         <h3 style="text-align:center;">Yuvarlanacak Basamak</h3>
                         <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div class="dl-setting-option" data-key="yuvarlamaTipi" data-value="rastgele" style="justify-content:center;"><span>🎲 Rastgele Karışık</span></div>
                             <div class="dl-setting-option" data-key="yuvarlamaTipi" data-value="onluk" style="justify-content:center;"><span>10'luğa Yuvarla</span></div>
                             <div class="dl-setting-option" data-key="yuvarlamaTipi" data-value="yuzluk" style="justify-content:center;"><span>100'lüğe Yuvarla</span></div>
                             <div class="dl-setting-option" data-key="yuvarlamaTipi" data-value="ondalik" style="justify-content:center;"><span>Ondalık Kesir</span></div>
@@ -263,7 +264,13 @@ const DersligLobby = {
                 opt.classList.toggle('selected', opt.dataset.value === tip);
             });
 
-            if (tip === 'onluk') {
+            if (tip === 'rastgele') {
+                title.textContent = "Soru Çeşitliliği";
+                const info = document.createElement('div');
+                info.style.cssText = 'text-align:center; padding:20px 10px; color:#666; font-size:14px; line-height:1.6;';
+                info.innerHTML = '<div style="font-size:32px; margin-bottom:8px;">🎲</div><strong>Her soruda farklı tür!</strong><br>Onluğa, Yüzlüğe ve Ondalık<br>yuvarlama soruları karışık gelir.';
+                bContainer.appendChild(info);
+            } else if (tip === 'onluk') {
                 title.textContent = "Sayı Kaç Basamaklı Olsun?";
                 [2, 3, 4, 5].forEach(val => {
                     const div = document.createElement('div');
@@ -313,6 +320,7 @@ const DersligLobby = {
                 if(tempSettings.yuvarlamaTipi === 'onluk') tempSettings.basamakSayisi = 2;
                 else if(tempSettings.yuvarlamaTipi === 'yuzluk') tempSettings.basamakSayisi = 3;
                 else if(tempSettings.yuvarlamaTipi === 'ondalik') tempSettings.basamakSayisi = 1;
+                else if(tempSettings.yuvarlamaTipi === 'rastgele') tempSettings.basamakSayisi = 2;
                 renderBasamakOptions();
             });
         });

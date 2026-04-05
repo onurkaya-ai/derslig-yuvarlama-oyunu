@@ -150,6 +150,21 @@ const YuvarlamaEngine = {
     },
 
     _createQuestion: function() {
+        // Rastgele modda her soru için farklı tip ve basamak seç
+        let origTip, origBasamak;
+        if (this.settings.yuvarlamaTipi === 'rastgele') {
+            origTip = this.settings.yuvarlamaTipi;
+            origBasamak = this.settings.basamakSayisi;
+            const configs = [
+                { tip: 'onluk', basamak: [2,3,4,5] },
+                { tip: 'yuzluk', basamak: [3,4,5] },
+                { tip: 'ondalik', basamak: [1,2,3] }
+            ];
+            const picked = configs[Math.floor(Math.random() * configs.length)];
+            this.settings.yuvarlamaTipi = picked.tip;
+            this.settings.basamakSayisi = picked.basamak[Math.floor(Math.random() * picked.basamak.length)];
+        }
+
         const num = this._generateNumber();
         const correct = this._getCorrectAnswer(num);
         const options = this._generateDistractors(num, correct);
@@ -167,10 +182,16 @@ const YuvarlamaEngine = {
             else if (basamak === 3) label = 'Binde Birliğe Yuvarla';
         }
 
-        // Gösterim formatı (virgül için tr-TR kullanılabilir veya decimal replace)
+        // Gösterim formatı
         const display = (tip === 'ondalik') 
             ? num.toLocaleString('tr-TR', {minimumFractionDigits: basamak + 1, maximumFractionDigits: basamak + 1}) 
             : num.toLocaleString('tr-TR');
+
+        // Rastgele modda orijinal ayarları geri yükle
+        if (origTip) {
+            this.settings.yuvarlamaTipi = origTip;
+            this.settings.basamakSayisi = origBasamak;
+        }
 
         return { num, correct, options, label, display };
     },
