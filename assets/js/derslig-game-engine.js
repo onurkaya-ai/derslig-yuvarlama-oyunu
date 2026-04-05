@@ -449,7 +449,7 @@ const YuvarlamaEngine = {
             const btn = document.createElement('button');
             btn.className = 'dl-option-btn';
             btn.dataset.val = val;
-            btn.textContent = Number.isInteger(val) ? val.toLocaleString('tr-TR') : val;
+            btn.textContent = val.toLocaleString('tr-TR');
             btn.addEventListener('click', function() {
                 const v = parseFloat(this.dataset.val);
                 self._handleAnswer(v, this, q.correct, self.state.players[0], area, () => self._loadSoloQuestion());
@@ -541,7 +541,7 @@ const YuvarlamaEngine = {
             const btn = document.createElement('button');
             btn.className = 'dl-option-btn';
             btn.dataset.val = val;
-            btn.textContent = Number.isInteger(val) ? val.toLocaleString('tr-TR') : val;
+            btn.textContent = val.toLocaleString('tr-TR');
             btn.addEventListener('click', function() {
                 const v = parseFloat(this.dataset.val);
                 self._handleAnswer(v, this, q.correct, playerState, panel, () => self._loadMultiQuestion(playerIndex));
