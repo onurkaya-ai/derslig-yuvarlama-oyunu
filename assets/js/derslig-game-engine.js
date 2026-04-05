@@ -79,10 +79,24 @@ const YuvarlamaEngine = {
         this._startTimer();
     },
 
+    // ==================== RASTGELE ÇÖZÜCÜ ====================
+    _resolveRandom: function() {
+        const configs = [
+            { tip: 'onluk', basamak: [2,3,4,5] },
+            { tip: 'yuzluk', basamak: [3,4,5] },
+            { tip: 'ondalik', basamak: [1,2,3] }
+        ];
+        const picked = configs[Math.floor(Math.random() * configs.length)];
+        return {
+            tip: picked.tip,
+            basamak: picked.basamak[Math.floor(Math.random() * picked.basamak.length)]
+        };
+    },
+
     // ==================== SAYI ÜRETİCİ ====================
-    _generateNumber: function() {
-        const tip = this.settings.yuvarlamaTipi;
-        const basamak = this.settings.basamakSayisi;
+    _generateNumber: function(resolvedTip, resolvedBasamak) {
+        const tip = resolvedTip || this.settings.yuvarlamaTipi;
+        const basamak = resolvedBasamak || this.settings.basamakSayisi;
         let num;
 
         if (tip === 'onluk' || tip === 'yuzluk') {
@@ -102,20 +116,21 @@ const YuvarlamaEngine = {
             const fracPart = Math.floor(Math.random() * factor);
             num = intPart + fracPart / factor;
             
-            // Son basamağın 0 olmasını engelle (tam yuvarlanmış olmasın)
             while(Math.round(num * Math.pow(10, basamak)) / Math.pow(10, basamak) === num) {
                 num += 1 / factor;
             }
             num = parseFloat(num.toFixed(decimalLength));
         } else {
-            return 123; // Fallback
+            // Tanınmayan tip gelirse (rastgele dahil) güvenlik ağı
+            const r = this._resolveRandom();
+            return this._generateNumber(r.tip, r.basamak);
         }
         return num;
     },
 
-    _getCorrectAnswer: function(num) {
-        const tip = this.settings.yuvarlamaTipi;
-        const basamak = this.settings.basamakSayisi;
+    _getCorrectAnswer: function(num, resolvedTip, resolvedBasamak) {
+        const tip = resolvedTip || this.settings.yuvarlamaTipi;
+        const basamak = resolvedBasamak || this.settings.basamakSayisi;
 
         if (tip === 'onluk') return Math.round(num / 10) * 10;
         if (tip === 'yuzluk') return Math.round(num / 100) * 100;
@@ -123,13 +138,14 @@ const YuvarlamaEngine = {
             const factor = Math.pow(10, basamak);
             return Math.round(num * factor) / factor;
         }
-        return num;
+        // Güvenlik ağı
+        return Math.round(num / 10) * 10;
     },
 
     // ==================== ÇELDİRİCİ ÜRETİCİ ====================
-    _generateDistractors: function(num, correct) {
-        const tip = this.settings.yuvarlamaTipi;
-        const basamak = this.settings.basamakSayisi;
+    _generateDistractors: function(num, correct, resolvedTip, resolvedBasamak) {
+        const tip = resolvedTip || this.settings.yuvarlamaTipi;
+        const basamak = resolvedBasamak || this.settings.basamakSayisi;
         let step = 10;
         
         if (tip === 'onluk') step = 10;
@@ -150,29 +166,21 @@ const YuvarlamaEngine = {
     },
 
     _createQuestion: function() {
-        // Rastgele modda her soru için farklı tip ve basamak seç
-        let origTip, origBasamak;
-        if (this.settings.yuvarlamaTipi === 'rastgele') {
-            origTip = this.settings.yuvarlamaTipi;
-            origBasamak = this.settings.basamakSayisi;
-            const configs = [
-                { tip: 'onluk', basamak: [2,3,4,5] },
-                { tip: 'yuzluk', basamak: [3,4,5] },
-                { tip: 'ondalik', basamak: [1,2,3] }
-            ];
-            const picked = configs[Math.floor(Math.random() * configs.length)];
-            this.settings.yuvarlamaTipi = picked.tip;
-            this.settings.basamakSayisi = picked.basamak[Math.floor(Math.random() * picked.basamak.length)];
+        // Tip ve basamak çözümle (rastgele modda her soru farklı)
+        let tip = this.settings.yuvarlamaTipi;
+        let basamak = this.settings.basamakSayisi;
+        
+        if (tip === 'rastgele') {
+            const resolved = this._resolveRandom();
+            tip = resolved.tip;
+            basamak = resolved.basamak;
         }
 
-        const num = this._generateNumber();
-        const correct = this._getCorrectAnswer(num);
-        const options = this._generateDistractors(num, correct);
+        const num = this._generateNumber(tip, basamak);
+        const correct = this._getCorrectAnswer(num, tip, basamak);
+        const options = this._generateDistractors(num, correct, tip, basamak);
         options.sort(() => Math.random() - 0.5);
 
-        const tip = this.settings.yuvarlamaTipi;
-        const basamak = this.settings.basamakSayisi;
-        
         let label = 'Onluğa Yuvarla';
         if (tip === 'onluk') label = 'Onluğa Yuvarla';
         else if (tip === 'yuzluk') label = 'Yüzlüğe Yuvarla';
@@ -182,16 +190,9 @@ const YuvarlamaEngine = {
             else if (basamak === 3) label = 'Binde Birliğe Yuvarla';
         }
 
-        // Gösterim formatı
         const display = (tip === 'ondalik') 
             ? num.toLocaleString('tr-TR', {minimumFractionDigits: basamak + 1, maximumFractionDigits: basamak + 1}) 
             : num.toLocaleString('tr-TR');
-
-        // Rastgele modda orijinal ayarları geri yükle
-        if (origTip) {
-            this.settings.yuvarlamaTipi = origTip;
-            this.settings.basamakSayisi = origBasamak;
-        }
 
         return { num, correct, options, label, display };
     },
