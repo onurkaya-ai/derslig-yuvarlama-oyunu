@@ -165,6 +165,17 @@ const YuvarlamaEngine = {
         return Array.from(values);
     },
 
+    // ==================== SAYI FORMATLAYICI ====================
+    _formatOption: function(val, tip, basamak) {
+        if (tip === 'ondalik') {
+            return val.toLocaleString('tr-TR', {
+                minimumFractionDigits: basamak,
+                maximumFractionDigits: basamak
+            });
+        }
+        return val.toLocaleString('tr-TR');
+    },
+
     _createQuestion: function() {
         // Tip ve basamak çözümle (rastgele modda her soru farklı)
         let tip = this.settings.yuvarlamaTipi;
@@ -178,7 +189,13 @@ const YuvarlamaEngine = {
 
         const num = this._generateNumber(tip, basamak);
         const correct = this._getCorrectAnswer(num, tip, basamak);
-        const options = this._generateDistractors(num, correct, tip, basamak);
+        const rawOptions = this._generateDistractors(num, correct, tip, basamak);
+        
+        // Seçenekleri {value, display} olarak formatla
+        const options = rawOptions.map(val => ({
+            value: val,
+            display: this._formatOption(val, tip, basamak)
+        }));
         options.sort(() => Math.random() - 0.5);
 
         let label = 'Onluğa Yuvarla';
@@ -445,11 +462,11 @@ const YuvarlamaEngine = {
 
         const optsRow = document.createElement('div');
         optsRow.className = 'dl-options-row';
-        q.options.forEach(val => {
+        q.options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'dl-option-btn';
-            btn.dataset.val = val;
-            btn.textContent = val.toLocaleString('tr-TR');
+            btn.dataset.val = opt.value;
+            btn.textContent = opt.display;
             btn.addEventListener('click', function() {
                 const v = parseFloat(this.dataset.val);
                 self._handleAnswer(v, this, q.correct, self.state.players[0], area, () => self._loadSoloQuestion());
@@ -537,11 +554,11 @@ const YuvarlamaEngine = {
 
         const optRow = document.createElement('div');
         optRow.className = 'dl-options-row';
-        q.options.forEach(val => {
+        q.options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'dl-option-btn';
-            btn.dataset.val = val;
-            btn.textContent = val.toLocaleString('tr-TR');
+            btn.dataset.val = opt.value;
+            btn.textContent = opt.display;
             btn.addEventListener('click', function() {
                 const v = parseFloat(this.dataset.val);
                 self._handleAnswer(v, this, q.correct, playerState, panel, () => self._loadMultiQuestion(playerIndex));

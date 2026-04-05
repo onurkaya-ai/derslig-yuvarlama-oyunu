@@ -32,9 +32,6 @@ const DersligLobby = {
                     <div class="dl-race-visual">
                         <img src="../../assets/img/yuvarlama-cover.png" class="dl-banner-bg-img" alt="Yuvarla Kazan kapak görseli">
                         <div class="dl-banner-overlay"></div>
-                        <div class="dl-race-title-overlay">
-                            <img src="../../assets/img/yuvarla-kazan-logo.svg" class="dl-logo-svg" alt="Yuvarla Kazan! Logo">
-                        </div>
                     </div>
                 </div>
 
