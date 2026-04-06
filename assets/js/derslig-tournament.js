@@ -704,11 +704,13 @@ const TurnuvaEngine = {
             const m = d.toLocaleString('tr-TR', { month: 'long' });
             ctx.fillText(`${y} - ${y+1} Eğitim-Öğretim Yılı ${m} Ayında`, 400, 280);
             
-            ctx.fillText("Derslig.com'daki Okul Liginizde Göstermiş Olduğunuz Üstün", 400, 320);
-            ctx.fillText("Başarıdan Dolayı Sizi Tebrik Ederiz.", 400, 350);
+            ctx.fillText("Matematik becerilerini konuşturan Yuvarlama Kazan! Turnuvası'nda,", 400, 320);
+            ctx.fillText("rakiplerini eleyerek gösterdiğin üstün performans ve", 400, 345);
+            ctx.fillText("şampiyonluk başarısından dolayı seni yürekten tebrik ederiz.", 400, 370);
 
-            ctx.fillText("Ülkemizin Aydınlık Geleceğine Işık Tutacak", 400, 395);
-            ctx.fillText("Nice Başarılarınızın Devamını Dileriz.", 400, 425);
+            ctx.font = "italic bold 16px 'Nunito', sans-serif";
+            ctx.fillText("Akıl yürütme gücünün sana daima rehberlik etmesini", 400, 410);
+            ctx.fillText("ve başarılarının katlanarak artmasını dileriz.", 400, 435);
 
             // Madalya Çizimi
             ctx.fillStyle = "#e50069"; // Kurdeleler
