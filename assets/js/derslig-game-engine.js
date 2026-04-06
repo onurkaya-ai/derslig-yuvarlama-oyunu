@@ -9,6 +9,7 @@ const YuvarlamaEngine = {
         basamakSayisi: 2,
         yuvarlamaTipi: 'onluk',
         sure: 60,
+        maarifModel: false,
         // Yeni karma seçim sistemi
         seciliTipler: null  // [{tip:'onluk', basamaklar:[2,3,4,5]}, ...]
     },
@@ -67,6 +68,9 @@ const YuvarlamaEngine = {
                 ];
             }
         }
+
+        // Maarif Model ayarını al
+        this.settings.maarifModel = ayarlar.maarifModel || false;
 
         // Oyuncu sayısını belirle
         if(mod === 'tek') {
@@ -160,12 +164,40 @@ const YuvarlamaEngine = {
         const tip = resolvedTip || this.settings.yuvarlamaTipi;
         const basamak = resolvedBasamak || this.settings.basamakSayisi;
 
-        if (tip === 'onluk') return Math.round(num / 10) * 10;
-        if (tip === 'yuzluk') return Math.round(num / 100) * 100;
+        if (tip === 'onluk') {
+            const remainder = num % 10;
+            if (this.settings.maarifModel && remainder === 5) {
+                // Maarif Modeli: 5 olduğu gibi kalır
+                return num;
+            }
+            return Math.round(num / 10) * 10;
+        }
+        if (tip === 'yuzluk') {
+            const remainder = Math.floor((num % 100) / 10);
+            // Yüzlük yuvarlama: onlar basamağı 5 ise olduğu gibi kal
+            if (this.settings.maarifModel && (num % 100) >= 50 && (num % 100) < 60) {
+                // 50-59 arası: "50" olarak kalır → birler sıfırlanır ama yüzlüğe yuvarlanmaz
+                return Math.floor(num / 100) * 100 + 50;
+            }
+            return Math.round(num / 100) * 100;
+        }
         if (tip === 'ondalik') {
-            // Kayan nokta hassasiyet hatasını önlemek için üstel gösterim kullan
-            // Eski yöntem: Math.round(45.245 * 100)/100 = 45.24 (YANLIŞ!)
-            // Yeni yöntem: Math.round(parseFloat("45.245e2")) → 4525 → 45.25 (DOĞRU)
+            // Ondalık yuvarlama için Maarif kuralı:
+            // Yuvarlanacak basamağın hemen sağındaki rakam 5 ise olduğu gibi kalır
+            const factor = Math.pow(10, basamak);
+            const shifted = parseFloat((num * factor).toFixed(4));
+            const nextDigit = Math.floor(shifted) % 10;
+            const decimal = shifted - Math.floor(shifted);
+
+            // Hemen sağındaki tam rakamı bul
+            const factorNext = Math.pow(10, basamak + 1);
+            const shiftedNext = parseFloat((num * factorNext).toFixed(4));
+            const digitAfter = Math.floor(shiftedNext) % 10;
+
+            if (this.settings.maarifModel && digitAfter === 5) {
+                // 5 ise kesilir (aşağı yuvarlama gibi davranır, olduğu gibi kalır)
+                return Math.floor(shifted) / factor;
+            }
             return Number(Math.round(parseFloat(num + 'e' + basamak)) + 'e-' + basamak);
         }
         // Güvenlik ağı
@@ -230,6 +262,10 @@ const YuvarlamaEngine = {
             if (basamak === 1) label = 'Onda Birliğe Yuvarla';
             else if (basamak === 2) label = 'Yüzde Birliğe Yuvarla';
             else if (basamak === 3) label = 'Binde Birliğe Yuvarla';
+        }
+
+        if (this.settings.maarifModel) {
+            label += ' (Maarif)';
         }
 
         const display = (tip === 'ondalik') 

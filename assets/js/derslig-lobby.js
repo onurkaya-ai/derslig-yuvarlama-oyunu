@@ -228,6 +228,7 @@ const DersligLobby = {
             ];
         }
         let tempSure = this._settings.sure || 60;
+        let tempMaarifModel = this._settings.maarifModel || false;
 
         // Yardımcı: tip havuzda var mı
         function hasTip(tip) { return currentPool.some(t => t.tip === tip); }
@@ -333,6 +334,16 @@ const DersligLobby = {
                 `;
             });
 
+            // Maarif Model Toggle
+            const maarifHTML = `
+                <div class="dl-setting-option ${tempMaarifModel ? 'selected' : ''}" id="btn-maarif-toggle" style="justify-content:center; padding:14px 10px; background:${tempMaarifModel ? 'linear-gradient(135deg, #e50069, #b30052)' : 'rgba(255,255,255,0.06)'}; border:2px solid ${tempMaarifModel ? '#fff' : 'rgba(255,255,255,0.15)'}; cursor:pointer;">
+                    <span style="color:${tempMaarifModel ? '#fff' : '#ccc'}; font-weight:800; font-size:14px;">📐 Maarif Modeli</span>
+                </div>
+                <div style="color:#aaa; font-size:11px; text-align:center; margin-top:4px; padding:0 8px;">
+                    ${tempMaarifModel ? '✅ Aktif: 5 olduğu gibi kalır' : 'Kapalı: Klasik yuvarlama (5 yukarı)'}
+                </div>
+            `;
+
             overlay.innerHTML = `
                 <div class="dl-settings-panel" style="max-width:95vw; width:1100px;">
                     <div class="dl-settings-title" style="margin-bottom:20px;">Oyun Ayarları</div>
@@ -354,11 +365,15 @@ const DersligLobby = {
                             </div>
                         </div>
 
-                        <!-- Süre -->
+                        <!-- Süre + Maarif -->
                         <div class="dl-settings-column" style="flex:1;">
                             <h3 style="text-align:center; color:#555; margin-bottom:10px;">Süre Seçimi</h3>
                             <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
                                 ${sureHTML}
+                            </div>
+                            <h3 style="text-align:center; color:#555; margin:18px 0 10px 0;">Yuvarlama Kuralı</h3>
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                ${maarifHTML}
                             </div>
                         </div>
 
@@ -447,6 +462,16 @@ const DersligLobby = {
                 });
             });
 
+            // Maarif Modeli Toggle
+            const maarifBtn = overlay.querySelector('#btn-maarif-toggle');
+            if (maarifBtn) {
+                maarifBtn.addEventListener('click', function() {
+                    Derslig?.tiklamaSesi?.();
+                    tempMaarifModel = !tempMaarifModel;
+                    renderSettings();
+                });
+            }
+
             // İptal
             overlay.querySelector('#settings-cancel')?.addEventListener('click', function() {
                 Derslig?.tiklamaSesi?.();
@@ -459,6 +484,7 @@ const DersligLobby = {
                 Derslig?.tiklamaSesi?.();
                 self._settings.seciliTipler = currentPool;
                 self._settings.sure = tempSure;
+                self._settings.maarifModel = tempMaarifModel;
                 // Eski alan uyumu
                 if (currentPool.length === 1 && currentPool[0].basamaklar.length === 1) {
                     self._settings.yuvarlamaTipi = currentPool[0].tip;
