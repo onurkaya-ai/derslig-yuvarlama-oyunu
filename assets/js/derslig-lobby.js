@@ -6,8 +6,13 @@ const DersligLobby = {
     _config: null,
     _settings: {
         basamakSayisi: 2,
-        yuvarlamaTipi: 'rastgele',
-        sure: 60
+        yuvarlamaTipi: 'karma',
+        sure: 60,
+        seciliTipler: [
+            { tip: 'onluk', basamaklar: [2,3,4,5] },
+            { tip: 'yuzluk', basamaklar: [3,4,5] },
+            { tip: 'ondalik', basamaklar: [1,2,3] }
+        ]
     },
 
     create: function(containerId, config) {
@@ -210,154 +215,264 @@ const DersligLobby = {
         const self = this;
         const container = document.getElementById('derslig-app') || document.body;
         
-        // Geçici ayar kopyası oluştur
-        const tempSettings = { ...this._settings };
-        
+        // Mevcut ayarlardan seciliTipler'i çöz
+        let currentPool = [];
+        if (this._settings.seciliTipler && this._settings.seciliTipler.length > 0) {
+            currentPool = JSON.parse(JSON.stringify(this._settings.seciliTipler));
+        } else {
+            // Varsayılan: hepsi
+            currentPool = [
+                { tip: 'onluk', basamaklar: [2,3,4,5] },
+                { tip: 'yuzluk', basamaklar: [3,4,5] },
+                { tip: 'ondalik', basamaklar: [1,2,3] }
+            ];
+        }
+        let tempSure = this._settings.sure || 60;
+
+        // Yardımcı: tip havuzda var mı
+        function hasTip(tip) { return currentPool.some(t => t.tip === tip); }
+        function getBasamaklar(tip) {
+            const found = currentPool.find(t => t.tip === tip);
+            return found ? found.basamaklar : [];
+        }
+        function hasBasamak(tip, b) { return getBasamaklar(tip).includes(b); }
+
+        // Tip ekle/çıkar
+        function toggleTip(tip, allBasamaklar) {
+            if (hasTip(tip)) {
+                currentPool = currentPool.filter(t => t.tip !== tip);
+            } else {
+                currentPool.push({ tip: tip, basamaklar: [...allBasamaklar] });
+            }
+        }
+        // Basamak ekle/çıkar
+        function toggleBasamak(tip, b, allBasamaklar) {
+            let entry = currentPool.find(t => t.tip === tip);
+            if (!entry) {
+                // Tip yoksa ekle (sadece bu basamakla)
+                currentPool.push({ tip: tip, basamaklar: [b] });
+                return;
+            }
+            if (entry.basamaklar.includes(b)) {
+                entry.basamaklar = entry.basamaklar.filter(x => x !== b);
+                if (entry.basamaklar.length === 0) {
+                    currentPool = currentPool.filter(t => t.tip !== tip);
+                }
+            } else {
+                entry.basamaklar.push(b);
+                entry.basamaklar.sort((a,c) => a - c);
+            }
+        }
+
+        const tipDefinitions = [
+            { tip: 'onluk', label: "10'luğa Yuvarla", basamaklar: [2,3,4,5], basamakLabels: {2:'2 Basamak', 3:'3 Basamak', 4:'4 Basamak', 5:'5 Basamak'} },
+            { tip: 'yuzluk', label: "100'lüğe Yuvarla", basamaklar: [3,4,5], basamakLabels: {3:'3 Basamak', 4:'4 Basamak', 5:'5 Basamak'} },
+            { tip: 'ondalik', label: "Ondalık Kesir", basamaklar: [1,2,3], basamakLabels: {1:'Onda Birlik', 2:'Yüzde Birlik', 3:'Binde Birlik'} }
+        ];
+
         const overlay = document.createElement('div');
         overlay.className = 'dl-settings-overlay active';
 
-        // Eski karışık ayarları temizle
-        if(!['onluk', 'yuzluk', 'ondalik', 'rastgele'].includes(tempSettings.yuvarlamaTipi)) {
-            tempSettings.yuvarlamaTipi = 'rastgele';
-            tempSettings.basamakSayisi = 2;
-        }
-
-        overlay.innerHTML = `
-            <div class="dl-settings-panel" style="max-width:850px;">
-                <div class="dl-settings-title">Oyun Ayarları</div>
-                <div class="dl-settings-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-                    
-                    <!-- Yuvarlama Türü -->
-                    <div class="dl-settings-column">
-                        <h3 style="text-align:center;">Yuvarlanacak Basamak</h3>
-                        <div style="display:flex; flex-direction:column; gap:8px;">
-                            <div class="dl-setting-option" data-key="yuvarlamaTipi" data-value="rastgele" style="justify-content:center;"><span>🎲 Rastgele Karışık</span></div>
-                            <div class="dl-setting-option" data-key="yuvarlamaTipi" data-value="onluk" style="justify-content:center;"><span>10'luğa Yuvarla</span></div>
-                            <div class="dl-setting-option" data-key="yuvarlamaTipi" data-value="yuzluk" style="justify-content:center;"><span>100'lüğe Yuvarla</span></div>
-                            <div class="dl-setting-option" data-key="yuvarlamaTipi" data-value="ondalik" style="justify-content:center;"><span>Ondalık Kesir</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Basamak Sayısı (Dinamik) -->
-                    <div class="dl-settings-column">
-                        <h3 id="basamak-title" style="text-align:center;">Basamak Sayısı</h3>
-                        <div id="basamak-options-container" style="display:flex; flex-direction:column; gap:8px; width:100%;">
-                            <!-- JS ile doldurulacak -->
-                        </div>
-                    </div>
-
-                    <!-- Süre Ayarı -->
-                    <div class="dl-settings-column">
-                        <h3 style="text-align:center;">Süre</h3>
-                        <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
-                            ${[30,40,50,60,70,80,90,120].map(s => `
-                                <div class="dl-setting-option ${tempSettings.sure === s ? 'selected' : ''}" data-key="sure" data-value="${s}" style="width:calc(50% - 3px); justify-content:center; margin-bottom:0; padding:10px 5px;"><span>${s} sn</span></div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                </div>
-                <div class="dl-settings-buttons" style="margin-top:25px;">
-                    <button class="dl-settings-btn secondary" id="settings-cancel">İptal</button>
-                    <button class="dl-settings-btn primary" id="settings-save">Kaydet</button>
-                </div>
-            </div>
-        `;
-
-        container.appendChild(overlay);
-
-        const renderBasamakOptions = () => {
-            const bContainer = overlay.querySelector('#basamak-options-container');
-            const title = overlay.querySelector('#basamak-title');
-            bContainer.innerHTML = '';
-            
-            const tip = tempSettings.yuvarlamaTipi;
-            
-            overlay.querySelectorAll('[data-key="yuvarlamaTipi"]').forEach(opt => {
-                opt.classList.toggle('selected', opt.dataset.value === tip);
+        function renderSettings() {
+            const isAllTips = tipDefinitions.every(td => {
+                const entry = currentPool.find(t => t.tip === td.tip);
+                return entry && td.basamaklar.every(b => entry.basamaklar.includes(b));
             });
 
-            if (tip === 'rastgele') {
-                title.textContent = "Soru Çeşitliliği";
-                const info = document.createElement('div');
-                info.style.cssText = 'text-align:center; padding:20px 10px; color:#666; font-size:14px; line-height:1.6;';
-                info.innerHTML = '<div style="font-size:32px; margin-bottom:8px;">🎲</div><strong>Her soruda farklı tür!</strong><br>Onluğa, Yüzlüğe ve Ondalık<br>yuvarlama soruları karışık gelir.';
-                bContainer.appendChild(info);
-            } else if (tip === 'onluk') {
-                title.textContent = "Sayı Kaç Basamaklı Olsun?";
-                [2, 3, 4, 5].forEach(val => {
-                    const div = document.createElement('div');
-                    div.className = `dl-setting-option ${tempSettings.basamakSayisi === val ? 'selected' : ''}`;
-                    div.dataset.value = val;
-                    div.style.justifyContent = 'center';
-                    div.innerHTML = `<span>${val} Basamaklı</span>`;
-                    bContainer.appendChild(div);
-                });
-            } else if (tip === 'yuzluk') {
-                title.textContent = "Sayı Kaç Basamaklı Olsun?";
-                [3, 4, 5].forEach(val => {
-                    const div = document.createElement('div');
-                    div.className = `dl-setting-option ${tempSettings.basamakSayisi === val ? 'selected' : ''}`;
-                    div.dataset.value = val;
-                    div.style.justifyContent = 'center';
-                    div.innerHTML = `<span>${val} Basamaklı</span>`;
-                    bContainer.appendChild(div);
-                });
-            } else if (tip === 'ondalik') {
-                title.textContent = "Soru Tipi";
-                [1, 2, 3].forEach(val => {
-                    const labels = {1: 'Onda Birliğe (1 Basamak)', 2: 'Yüzde Birliğe (2 Basamak)', 3: 'Binde Birliğe (3 Basamak)'};
-                    const div = document.createElement('div');
-                    div.className = `dl-setting-option ${tempSettings.basamakSayisi === val ? 'selected' : ''}`;
-                    div.dataset.value = val;
-                    div.style.justifyContent = 'center';
-                    div.innerHTML = `<span>${labels[val]}</span>`;
-                    bContainer.appendChild(div);
+            let tipHTML = `
+                <div class="dl-setting-option ${isAllTips ? 'selected' : ''}" id="btn-hepsi-tip" style="justify-content:center; background:#4CAF50; border-color:${isAllTips ? '#fff' : 'transparent'};">
+                    <span style="color:#fff;">✅ Hepsi</span>
+                </div>
+            `;
+            tipDefinitions.forEach(td => {
+                const active = hasTip(td.tip);
+                tipHTML += `
+                    <div class="dl-setting-option dl-tip-toggle ${active ? 'selected' : ''}" data-tip="${td.tip}" style="justify-content:center;">
+                        <span>${td.label}</span>
+                    </div>
+                `;
+            });
+
+            // Sağ sütun: seçili tiplerin basamak seçenekleri
+            let basamakHTML = '';
+            const activeTips = tipDefinitions.filter(td => hasTip(td.tip));
+            
+            if (activeTips.length === 0) {
+                basamakHTML = '<div style="text-align:center; padding:20px; color:#aaa; font-size:14px;">Önce sol taraftan en az bir tür seçin.</div>';
+            } else {
+                activeTips.forEach(td => {
+                    const entry = currentPool.find(t => t.tip === td.tip);
+                    const allSelected = entry && td.basamaklar.every(b => entry.basamaklar.includes(b));
+                    
+                    basamakHTML += `
+                        <div style="margin-bottom:10px;">
+                            <div style="color:#fff; font-size:13px; font-weight:700; margin-bottom:5px; text-align:center; opacity:0.8;">${td.label}</div>
+                            <div class="dl-setting-option dl-basamak-hepsi ${allSelected ? 'selected' : ''}" data-tip="${td.tip}" style="justify-content:center; padding:6px 10px; margin-bottom:4px; background:rgba(76,175,80,0.6); border-color:${allSelected ? '#fff' : 'transparent'};">
+                                <span style="font-size:13px;">Hepsi</span>
+                            </div>
+                    `;
+                    td.basamaklar.forEach(b => {
+                        const active = hasBasamak(td.tip, b);
+                        basamakHTML += `
+                            <div class="dl-setting-option dl-basamak-toggle ${active ? 'selected' : ''}" data-tip="${td.tip}" data-basamak="${b}" style="justify-content:center; padding:6px 10px; margin-bottom:3px;">
+                                <span style="font-size:13px;">${td.basamakLabels[b]}</span>
+                            </div>
+                        `;
+                    });
+                    basamakHTML += '</div>';
                 });
             }
-            
-            bContainer.querySelectorAll('.dl-setting-option').forEach(opt => {
-                opt.addEventListener('click', function() {
+
+            // Süre
+            let sureHTML = '';
+            [30,40,50,60,70,80,90,120].forEach(s => {
+                sureHTML += `
+                    <div class="dl-setting-option dl-sure-opt ${tempSure === s ? 'selected' : ''}" data-sure="${s}" style="width:calc(50% - 3px); justify-content:center; margin-bottom:0; padding:10px 5px;">
+                        <span>${s} sn</span>
+                    </div>
+                `;
+            });
+
+            overlay.innerHTML = `
+                <div class="dl-settings-panel" style="max-width:95vw; width:1100px;">
+                    <div class="dl-settings-title" style="margin-bottom:20px;">Oyun Ayarları</div>
+                    <div class="dl-settings-grid" style="display:flex; gap:25px;">
+                        
+                        <!-- Yuvarlama Türü (Multi-select) -->
+                        <div class="dl-settings-column" style="flex:1;">
+                            <h3 style="text-align:center; color:#555; margin-bottom:10px;">Yuvarlama Türü</h3>
+                            <div style="display:flex; flex-direction:column; gap:8px;" id="tip-container">
+                                ${tipHTML}
+                            </div>
+                        </div>
+
+                        <!-- Basamak (Multi-select, Dinamik) -->
+                        <div class="dl-settings-column" style="flex:1.5;">
+                            <h3 style="text-align:center; color:#555; margin-bottom:10px;">Basamak Seçimi</h3>
+                            <div id="basamak-container" style="max-height:400px; overflow-y:auto; padding-right:5px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                                ${basamakHTML}
+                            </div>
+                        </div>
+
+                        <!-- Süre -->
+                        <div class="dl-settings-column" style="flex:1;">
+                            <h3 style="text-align:center; color:#555; margin-bottom:10px;">Süre Seçimi</h3>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+                                ${sureHTML}
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="dl-settings-buttons" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+                        <button class="dl-settings-btn secondary" id="settings-cancel">İptal</button>
+                        <button class="dl-settings-btn primary" id="settings-save" ${currentPool.length === 0 ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Kaydet</button>
+                    </div>
+                </div>
+            `;
+
+            // Event binding
+            bindSettingsEvents();
+        }
+
+        function bindSettingsEvents() {
+            // Hepsi butonu (tüm tipler)
+            const hepsiBtn = overlay.querySelector('#btn-hepsi-tip');
+            if (hepsiBtn) {
+                hepsiBtn.addEventListener('click', function() {
                     Derslig?.tiklamaSesi?.();
-                    bContainer.querySelectorAll('.dl-setting-option').forEach(o => o.classList.remove('selected'));
-                    this.classList.add('selected');
-                    tempSettings.basamakSayisi = parseInt(this.dataset.value);
+                    const isAllNow = tipDefinitions.every(td => {
+                        const entry = currentPool.find(t => t.tip === td.tip);
+                        return entry && td.basamaklar.every(b => entry.basamaklar.includes(b));
+                    });
+                    if (isAllNow) {
+                        currentPool = [];
+                    } else {
+                        currentPool = tipDefinitions.map(td => ({ tip: td.tip, basamaklar: [...td.basamaklar] }));
+                    }
+                    renderSettings();
+                });
+            }
+
+            // Tip toggle
+            overlay.querySelectorAll('.dl-tip-toggle').forEach(el => {
+                el.addEventListener('click', function() {
+                    Derslig?.tiklamaSesi?.();
+                    const tip = this.dataset.tip;
+                    const td = tipDefinitions.find(t => t.tip === tip);
+                    toggleTip(tip, td.basamaklar);
+                    renderSettings();
                 });
             });
-        };
 
-        overlay.querySelectorAll('[data-key="yuvarlamaTipi"]').forEach(opt => {
-            opt.addEventListener('click', function() {
-                Derslig?.tiklamaSesi?.();
-                tempSettings.yuvarlamaTipi = this.dataset.value;
-                if(tempSettings.yuvarlamaTipi === 'onluk') tempSettings.basamakSayisi = 2;
-                else if(tempSettings.yuvarlamaTipi === 'yuzluk') tempSettings.basamakSayisi = 3;
-                else if(tempSettings.yuvarlamaTipi === 'ondalik') tempSettings.basamakSayisi = 1;
-                else if(tempSettings.yuvarlamaTipi === 'rastgele') tempSettings.basamakSayisi = 2;
-                renderBasamakOptions();
+            // Basamak hepsi
+            overlay.querySelectorAll('.dl-basamak-hepsi').forEach(el => {
+                el.addEventListener('click', function() {
+                    Derslig?.tiklamaSesi?.();
+                    const tip = this.dataset.tip;
+                    const td = tipDefinitions.find(t => t.tip === tip);
+                    const entry = currentPool.find(t => t.tip === tip);
+                    if (entry && td.basamaklar.every(b => entry.basamaklar.includes(b))) {
+                        // Tümü seçili → hepsini kaldır (tip'i kaldır)
+                        currentPool = currentPool.filter(t => t.tip !== tip);
+                    } else {
+                        // Eksik var → hepsini seç
+                        if (entry) {
+                            entry.basamaklar = [...td.basamaklar];
+                        } else {
+                            currentPool.push({ tip: tip, basamaklar: [...td.basamaklar] });
+                        }
+                    }
+                    renderSettings();
+                });
             });
-        });
 
-        overlay.querySelectorAll('[data-key="sure"]').forEach(opt => {
-            opt.addEventListener('click', function() {
-                Derslig?.tiklamaSesi?.();
-                overlay.querySelectorAll('[data-key="sure"]').forEach(o => o.classList.remove('selected'));
-                this.classList.add('selected');
-                tempSettings.sure = parseInt(this.dataset.value);
+            // Basamak toggle
+            overlay.querySelectorAll('.dl-basamak-toggle').forEach(el => {
+                el.addEventListener('click', function() {
+                    Derslig?.tiklamaSesi?.();
+                    const tip = this.dataset.tip;
+                    const b = parseInt(this.dataset.basamak);
+                    const td = tipDefinitions.find(t => t.tip === tip);
+                    toggleBasamak(tip, b, td.basamaklar);
+                    renderSettings();
+                });
             });
-        });
 
-        document.getElementById('settings-cancel').addEventListener('click', function() {
-            Derslig?.tiklamaSesi?.(); 
-            overlay.remove();
-        });
-        document.getElementById('settings-save').addEventListener('click', function() {
-            Derslig?.tiklamaSesi?.(); 
-            Object.assign(self._settings, tempSettings);
-            overlay.remove();
-        });
+            // Süre
+            overlay.querySelectorAll('.dl-sure-opt').forEach(el => {
+                el.addEventListener('click', function() {
+                    Derslig?.tiklamaSesi?.();
+                    tempSure = parseInt(this.dataset.sure);
+                    renderSettings();
+                });
+            });
 
-        renderBasamakOptions();
+            // İptal
+            overlay.querySelector('#settings-cancel')?.addEventListener('click', function() {
+                Derslig?.tiklamaSesi?.();
+                overlay.remove();
+            });
+
+            // Kaydet
+            overlay.querySelector('#settings-save')?.addEventListener('click', function() {
+                if (currentPool.length === 0) return;
+                Derslig?.tiklamaSesi?.();
+                self._settings.seciliTipler = currentPool;
+                self._settings.sure = tempSure;
+                // Eski alan uyumu
+                if (currentPool.length === 1 && currentPool[0].basamaklar.length === 1) {
+                    self._settings.yuvarlamaTipi = currentPool[0].tip;
+                    self._settings.basamakSayisi = currentPool[0].basamaklar[0];
+                } else {
+                    self._settings.yuvarlamaTipi = 'karma';
+                    self._settings.basamakSayisi = currentPool[0].basamaklar[0];
+                }
+                overlay.remove();
+            });
+        }
+
+        container.appendChild(overlay);
+        renderSettings();
     }
 
 

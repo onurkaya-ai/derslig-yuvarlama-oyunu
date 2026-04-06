@@ -27,16 +27,18 @@ body, html {
     overflow: hidden;
 }
 
-/* 16:9 Ana Konteyner */
+/* 16:9 Ana Konteyner - Akıllı Tahta Ekran Uyumu */
 #derslig-app, .dl-game-container {
-    width: 100%;
-    max-width: 1200px;
-    aspect-ratio: 16 / 9;
+    width: 100vw;
+    height: calc(100vw * 9 / 16);
+    max-height: 100vh;
+    max-width: calc(100vh * 16 / 9);
     background: #f0f0f0;
     position: relative;
     box-shadow: 0 8px 40px rgba(0,0,0,0.15);
     border-radius: 12px;
     overflow: hidden;
+    margin: auto; /* Dikeyde ve yatayda merkezleme */
 }
 
 /* Tam Ekran Modu */
@@ -519,8 +521,8 @@ body, html {
 }
 
 .dl-puan-label {
-    font-size: 24px;
-    font-weight: 800;
+    font-size: 36px;
+    font-weight: 900;
     color: var(--dl-btn-gold);
 }
 
@@ -864,10 +866,10 @@ body, html {
 
 /* Panel içi elementler */
 .dl-player-panel .dl-player-score {
-    font-size: 15px;
-    font-weight: 800;
+    font-size: 22px;
+    font-weight: 900;
     color: var(--dl-btn-gold);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     position: relative;
     z-index: 2;
     text-transform: uppercase;
@@ -917,6 +919,9 @@ body, html {
 }
 .dl-multi-container.players-2 .dl-player-panel .dl-round-label {
     font-size: 16px;
+}
+.dl-multi-container.players-2 .dl-player-panel .dl-player-score {
+    font-size: 26px;
 }
 
 /* ==================== TURNUVA ==================== */
@@ -1146,54 +1151,175 @@ body, html {
 }
 .dl-turnuva-exit-btn:hover { border-color: #999; color: #555; }
 
-/* Şampiyon Ekranı */
+/* Şampiyon Ekranı - Aydınlık Premium Tema */
 .dl-champion-screen {
     width: 100%; height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background: linear-gradient(135deg, #e8f4f8 0%, #d4ecf7 30%, #f0e6ff 60%, #fff5e6 100%);
     text-align: center;
     padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Parıltı efekti */
+.dl-champion-screen::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 30% 40%, rgba(247,201,72,0.15) 0%, transparent 40%),
+                radial-gradient(circle at 70% 60%, rgba(67,196,247,0.12) 0%, transparent 40%);
+    animation: shimmerBg 6s ease-in-out infinite alternate;
+    z-index: 0;
+}
+
+@keyframes shimmerBg {
+    from { transform: rotate(0deg) scale(1); }
+    to { transform: rotate(3deg) scale(1.05); }
+}
+
+.dl-champion-screen > * {
+    position: relative;
+    z-index: 1;
 }
 
 .dl-champion-trophy {
-    font-size: 100px;
-    animation: trophy-bounce 1s ease-in-out infinite alternate;
+    font-size: 80px;
+    animation: trophy-bounce 1.5s ease-in-out infinite alternate;
+    filter: drop-shadow(0 8px 20px rgba(247,201,72,0.4));
 }
 
 @keyframes trophy-bounce {
     from { transform: translateY(0) scale(1); }
-    to { transform: translateY(-15px) scale(1.08); }
+    to { transform: translateY(-12px) scale(1.06); }
 }
 
 .dl-champion-title {
-    font-size: 52px;
+    font-size: 48px;
     font-weight: 900;
-    color: var(--dl-btn-gold);
-    margin-top: 10px;
-    text-shadow: 0 4px 20px rgba(247,201,72,0.4);
+    background: linear-gradient(135deg, var(--dl-question-pink) 0%, #b30052 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-top: 8px;
+    text-shadow: none;
+    letter-spacing: 4px;
 }
 
 .dl-champion-name {
-    font-size: 36px;
-    font-weight: 800;
-    color: #fff;
-    margin-top: 8px;
+    font-size: 40px;
+    font-weight: 900;
+    color: #2c3e50;
+    margin-top: 6px;
     text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .dl-champion-confetti {
-    font-size: 32px;
-    margin-top: 12px;
+    font-size: 28px;
+    margin-top: 10px;
     letter-spacing: 10px;
 }
 
 .dl-champion-stats {
+    font-size: 15px;
+    color: #7f8c8d;
+    margin-top: 12px;
+    font-weight: 600;
+}
+
+/* Sertifika Butonları */
+.dl-champion-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.dl-cert-btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 50px;
+    font-family: var(--dl-font);
     font-size: 16px;
-    color: rgba(255,255,255,0.5);
-    margin-top: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dl-cert-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+
+.dl-cert-btn.gold {
+    background: radial-gradient(ellipse at center, #f7c948 0%, #e5a800 100%);
+    color: #333;
+    box-shadow: 0 4px 15px rgba(247,201,72,0.4);
+}
+
+.dl-cert-btn.blue {
+    background: var(--dl-primary);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(67,196,247,0.4);
+}
+
+.dl-cert-btn.magenta {
+    background: var(--dl-question-pink);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(229,0,105,0.4);
+}
+
+.dl-cert-btn.outline {
+    background: transparent;
+    border: 2px solid #ccc;
+    color: #666;
+}
+
+/* Sertifika Modal */
+.dl-cert-modal {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 60;
+    animation: fadeIn 0.3s;
+    backdrop-filter: blur(6px);
+}
+
+.dl-cert-wrapper {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    max-width: 92%;
+    max-height: 88%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.dl-cert-canvas {
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    max-width: 100%;
+    height: auto;
+}
+
+.dl-cert-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 /* ==================== MOBİL RESPONSIVE ==================== */
@@ -1391,4 +1517,167 @@ body, html {
         height: 100vh;
         border-radius: 0;
     }
+}
+
+
+/* ==================== LİDERLİK TABLOSU (LEADERBOARD) ==================== */
+.dl-lb-modal {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 80;
+    animation: fadeIn 0.3s;
+    backdrop-filter: blur(8px);
+}
+
+.dl-lb-wrapper {
+    background: linear-gradient(135deg, #1f2937, #111827);
+    border-radius: 16px;
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 4px var(--dl-question-pink);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dl-lb-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.dl-lb-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--dl-btn-gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    text-shadow: 0 2px 10px rgba(247,201,72,0.3);
+}
+
+.dl-lb-subtitle {
+    font-size: 16px;
+    color: #aaa;
+}
+
+.dl-lb-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.dl-lb-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 12px 20px;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.dl-lb-item.highlight {
+    background: rgba(229, 0, 105, 0.2);
+    border: 1px solid var(--dl-question-pink);
+    transform: scale(1.02);
+}
+
+.dl-lb-rank {
+    font-size: 24px;
+    font-weight: 900;
+    width: 40px;
+    color: var(--dl-primary);
+}
+
+.dl-lb-item:nth-child(1) .dl-lb-rank { color: #FFD700; } /* Altın */
+.dl-lb-item:nth-child(2) .dl-lb-rank { color: #C0C0C0; } /* Gümüş */
+.dl-lb-item:nth-child(3) .dl-lb-rank { color: #CD7F32; } /* Bronz */
+
+.dl-lb-name {
+    flex: 1;
+    font-size: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dl-lb-score {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    padding-left: 15px;
+}
+
+.dl-lb-input-area {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    text-align: center;
+    border: 1px dashed var(--dl-question-pink);
+}
+
+.dl-lb-input-msg {
+    color: var(--dl-question-pink);
+    font-weight: 800;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.dl-lb-input {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+    margin-bottom: 15px;
+    transition: border-color 0.3s;
+}
+
+.dl-lb-input:focus {
+    border-color: var(--dl-primary);
+}
+
+.dl-lb-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 50px;
+    font-family: var(--dl-font);
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--dl-primary);
+    color: #fff;
+    width: 100%;
+}
+
+.dl-lb-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(67,196,247,0.4);
+}
+
+.dl-lb-btn.close {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+.dl-lb-btn.close:hover {
+    background: rgba(255,255,255,0.2);
+    box-shadow: none;
 }

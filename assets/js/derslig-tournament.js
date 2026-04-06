@@ -547,6 +547,7 @@ const TurnuvaEngine = {
     },
 
     // ==================== ŞAMPİYON ====================
+    // ==================== ŞAMPİYON ====================
     _showChampion: function(winnerId) {
         const winnerName = this._getPlayerName(winnerId);
         const gameLayer = document.getElementById('dl-game-layer');
@@ -562,13 +563,17 @@ const TurnuvaEngine = {
                 <div class="dl-champion-trophy" aria-hidden="true">🏆</div>
                 <div class="dl-champion-title">ŞAMPİYON!</div>
                 <div class="dl-champion-name">${winnerName}</div>
-                <div class="dl-champion-confetti" aria-hidden="true">🎉🎊🎉🎊🎉</div>
                 <div class="dl-champion-stats">
-                    ${this.state.players.length} öğrenci arasından ${this.state.currentRound + 1} tur oynandı
+                    ${this.state.players.length} öğrenci arasından şampiyon oldu
                 </div>
-                <div class="dl-result-buttons" style="margin-top:30px;">
-                    <button class="dl-result-btn primary" id="champion-restart">Yeni Turnuva</button>
-                    <button class="dl-result-btn secondary" id="champion-exit">Ana Menü</button>
+                
+                <div class="dl-champion-actions">
+                    <button class="dl-cert-btn gold" id="champion-cert">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+                        Sertifikamı Ver
+                    </button>
+                    <button class="dl-cert-btn blue" id="champion-restart">Yeni Turnuva</button>
+                    <button class="dl-cert-btn outline" id="champion-exit">Ana Menü</button>
                 </div>
             </div>
         `;
@@ -576,11 +581,190 @@ const TurnuvaEngine = {
         Derslig?.baslangicSesi?.();
 
         document.getElementById('champion-restart').addEventListener('click', () => {
+            Derslig?.tiklamaSesi?.();
             this.showSetup(this.state.settings);
         });
 
         document.getElementById('champion-exit').addEventListener('click', () => {
+            Derslig?.tiklamaSesi?.();
             location.reload();
+        });
+
+        const self = this;
+        document.getElementById('champion-cert').addEventListener('click', () => {
+            Derslig?.tiklamaSesi?.();
+            self._showCertificate(winnerName);
+        });
+    },
+
+    _showCertificate: function(playerName) {
+        const gameLayer = document.getElementById('dl-game-layer');
+        if(!gameLayer) return;
+
+        const totalRounds = this.state.currentRound + 1;
+        const totalPlayers = this.state.players.length;
+
+        const modalHtml = `
+            <div class="dl-cert-modal" id="dl-cert-modal">
+                <div class="dl-cert-wrapper">
+                    <canvas id="dl-cert-canvas" width="800" height="565" class="dl-cert-canvas"></canvas>
+                    <div class="dl-cert-actions">
+                        <button class="dl-cert-btn magenta" id="dl-cert-share">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+                            Paylaş
+                        </button>
+                        <button class="dl-cert-btn gold" id="dl-cert-download">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                            Sertifikayı İndir
+                        </button>
+                        <button class="dl-cert-btn outline" id="dl-cert-close">Kapat</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        gameLayer.insertAdjacentHTML('beforeend', modalHtml);
+        
+        const modal = document.getElementById('dl-cert-modal');
+        const canvas = document.getElementById('dl-cert-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        document.getElementById('dl-cert-close').addEventListener('click', () => {
+             Derslig?.tiklamaSesi?.();
+             modal.remove();
+        });
+
+        // Sertifika Çizimi
+        function drawCertificate() {
+            // Arka plan
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, 800, 565);
+            
+            // Desen Simulasyonu (Hafif arka plan deseni)
+            ctx.fillStyle = "#f3f5f8";
+            for(let i=0; i<=800; i+=30) {
+                for(let j=0; j<=565; j+=30) {
+                   ctx.beginPath();
+                   ctx.arc(i, j, 4, 0, Math.PI*2);
+                   ctx.fill();
+                }
+            }
+
+            // Dış Çerçeveler
+            ctx.strokeStyle = "#e50069"; // Magenta ana hat
+            ctx.lineWidth = 14;
+            ctx.strokeRect(10, 10, 780, 545);
+
+            ctx.strokeStyle = "#f7c948"; // İç sarı çerçeve
+            ctx.lineWidth = 3;
+            ctx.strokeRect(30, 30, 740, 505);
+
+            // Köşe Süsleri
+            ctx.fillStyle = "#e50069";
+            ctx.beginPath(); ctx.arc(30, 30, 12, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(770, 30, 12, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(30, 535, 12, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(770, 535, 12, 0, Math.PI*2); ctx.fill();
+
+            // Derslig Logo Text
+            ctx.fillStyle = "#e50069";
+            ctx.font = "800 52px 'Nunito', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("derslig", 400, 110);
+
+            // Başlık
+            ctx.fillStyle = "#00a896";
+            ctx.font = "bold 38px 'Georgia', serif";
+            ctx.fillText("BAŞARI SERTİFİKASI", 400, 180);
+
+            // Kurumsal Metinler - Teal Renkli
+            ctx.fillStyle = "#00a896";
+            ctx.font = "bold 16px 'Nunito', sans-serif";
+            
+            ctx.fillText("Sevgili Öğrencimiz", 230, 240);
+            
+            // İsmin Altındaki Çizgili Kısım
+            ctx.strokeStyle = "#00a896";
+            ctx.setLineDash([3, 3]);
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(330, 242); ctx.lineTo(650, 242); ctx.stroke();
+            ctx.setLineDash([]); // Reset
+
+            // Oyuncu Adı
+            ctx.fillStyle = "#e50069"; // Özel Vurgu
+            ctx.font = "800 24px 'Nunito', sans-serif";
+            ctx.fillText(playerName.toUpperCase(), 490, 235);
+
+            // Gövde Metinleri
+            ctx.fillStyle = "#00a896";
+            ctx.font = "bold 16px 'Nunito', sans-serif";
+            
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = d.toLocaleString('tr-TR', { month: 'long' });
+            ctx.fillText(`${y} - ${y+1} Eğitim-Öğretim Yılı ${m} Ayında`, 400, 280);
+            
+            ctx.fillText("Derslig.com'daki Okul Liginizde Göstermiş Olduğunuz Üstün", 400, 320);
+            ctx.fillText("Başarıdan Dolayı Sizi Tebrik Ederiz.", 400, 350);
+
+            ctx.fillText("Ülkemizin Aydınlık Geleceğine Işık Tutacak", 400, 395);
+            ctx.fillText("Nice Başarılarınızın Devamını Dileriz.", 400, 425);
+
+            // Madalya Çizimi
+            ctx.fillStyle = "#e50069"; // Kurdeleler
+            ctx.beginPath(); ctx.moveTo(370, 460); ctx.lineTo(340, 520); ctx.lineTo(380, 500); ctx.lineTo(390, 460); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(430, 460); ctx.lineTo(460, 520); ctx.lineTo(420, 500); ctx.lineTo(410, 460); ctx.fill();
+
+            ctx.fillStyle = "#00a896"; // Madalya dış halka
+            ctx.beginPath(); ctx.arc(400, 460, 35, 0, Math.PI*2); ctx.fill();
+
+            ctx.fillStyle = "#f7c948"; // Madalya iç sarı
+            ctx.beginPath(); ctx.arc(400, 460, 25, 0, Math.PI*2); ctx.fill();
+            
+            ctx.fillStyle = "#00a896";
+            ctx.font = "bold 20px Arial";
+            ctx.fillText("🏆", 400, 467);
+            
+            // Alt Site Adresi
+            ctx.fillStyle = "#e50069";
+            ctx.font = "900 18px 'Nunito', sans-serif";
+            ctx.fillText("derslig.com", 400, 542);
+        }
+
+        drawCertificate();
+
+        // Share Feature
+        const shareBtn = document.getElementById('dl-cert-share');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', async () => {
+                Derslig?.tiklamaSesi?.();
+                try {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    const blob = await (await fetch(dataUrl)).blob();
+                    const file = new File([blob], `Sertifika-${playerName}.png`, { type: 'image/png' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Derslig Turnuva Şampiyonu!',
+                            text: `${playerName} öğrencimizi Yuvarlama Kazan Turnuvasındaki başarısından dolayı tebrik ederiz!`
+                        });
+                    } else {
+                        alert('Paylaşma özelliği bu tarayıcıda/cihazda desteklenmiyor. Lütfen "Sertifikayı İndir" seçeneğini kullanın.');
+                    }
+                } catch(e) {
+                    console.log('Paylaşım hatası:', e);
+                }
+            });
+        }
+
+        // İndirme
+        document.getElementById('dl-cert-download').addEventListener('click', () => {
+            Derslig?.tiklamaSesi?.();
+            const link = document.createElement('a');
+            link.download = `Sertifika-${playerName}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         });
     }
 };

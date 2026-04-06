@@ -175,9 +175,15 @@ const GameEngine = {
             btn.className = 'dl-option-btn';
             btn.dataset.val = val;
             btn.textContent = val;
-            btn.addEventListener('click', function() {
-                self._handleAnswer(parseInt(this.dataset.val), this, q.correct, self.state.players[0], area, () => self._loadSoloQuestion());
-            });
+            const eventHandler = function(e) {
+                if (e.type === 'touchstart' && e.cancelable) e.preventDefault();
+                if (btn.dataset.locked === 'true') return;
+                btn.dataset.locked = 'true';
+                setTimeout(() => { btn.dataset.locked = 'false'; }, 400);
+                self._handleAnswer(parseInt(btn.dataset.val), btn, q.correct, self.state.players[0], area, () => self._loadSoloQuestion());
+            };
+            btn.addEventListener('touchstart', eventHandler, {passive: false});
+            btn.addEventListener('click', eventHandler);
             optsRow.appendChild(btn);
         });
         area.appendChild(optsRow);
@@ -260,9 +266,15 @@ const GameEngine = {
             btn.className = 'dl-option-btn';
             btn.dataset.val = val;
             btn.textContent = val;
-            btn.addEventListener('click', function() {
-                self._handleAnswer(parseInt(this.dataset.val), this, q.correct, playerState, panel, () => self._loadMultiQuestion(playerIndex));
-            });
+            const eventHandler = function(e) {
+                if (e.type === 'touchstart' && e.cancelable) e.preventDefault();
+                if (btn.dataset.locked === 'true') return;
+                btn.dataset.locked = 'true';
+                setTimeout(() => { btn.dataset.locked = 'false'; }, 400);
+                self._handleAnswer(parseInt(btn.dataset.val), btn, q.correct, playerState, panel, () => self._loadMultiQuestion(playerIndex));
+            };
+            btn.addEventListener('touchstart', eventHandler, {passive: false});
+            btn.addEventListener('click', eventHandler);
             optRow.appendChild(btn);
         });
         panel.appendChild(optRow);

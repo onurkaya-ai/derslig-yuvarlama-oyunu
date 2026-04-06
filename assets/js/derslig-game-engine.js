@@ -8,7 +8,9 @@ const YuvarlamaEngine = {
     settings: {
         basamakSayisi: 2,
         yuvarlamaTipi: 'onluk',
-        sure: 60
+        sure: 60,
+        // Yeni karma seçim sistemi
+        seciliTipler: null  // [{tip:'onluk', basamaklar:[2,3,4,5]}, ...]
     },
 
     _createPlayerState: function() {
@@ -40,10 +42,31 @@ const YuvarlamaEngine = {
         this.container = document.getElementById(containerId);
         this.state.mod = mod;
         this.state.isFinished = false;
-        this.settings.basamakSayisi = ayarlar.basamakSayisi || 2;
-        this.settings.yuvarlamaTipi = ayarlar.yuvarlamaTipi || 'onluk';
         this.settings.sure = ayarlar.sure || 60;
         this.state.kalanSure = this.settings.sure;
+
+        // Yeni seciliTipler formatını destekle + geriye uyumluluk
+        if (ayarlar.seciliTipler && ayarlar.seciliTipler.length > 0) {
+            this.settings.seciliTipler = ayarlar.seciliTipler;
+            this.settings.yuvarlamaTipi = 'karma';
+            this.settings.basamakSayisi = ayarlar.seciliTipler[0].basamaklar[0];
+        } else {
+            // Eski format: tek tip + tek basamak
+            this.settings.basamakSayisi = ayarlar.basamakSayisi || 2;
+            this.settings.yuvarlamaTipi = ayarlar.yuvarlamaTipi || 'onluk';
+            // Eski formatı da seciliTipler'e dönüştür
+            if (this.settings.yuvarlamaTipi === 'rastgele') {
+                this.settings.seciliTipler = [
+                    { tip: 'onluk', basamaklar: [2,3,4,5] },
+                    { tip: 'yuzluk', basamaklar: [3,4,5] },
+                    { tip: 'ondalik', basamaklar: [1,2,3] }
+                ];
+            } else {
+                this.settings.seciliTipler = [
+                    { tip: this.settings.yuvarlamaTipi, basamaklar: [this.settings.basamakSayisi] }
+                ];
+            }
+        }
 
         // Oyuncu sayısını belirle
         if(mod === 'tek') {
@@ -79,18 +102,23 @@ const YuvarlamaEngine = {
         this._startTimer();
     },
 
-    // ==================== RASTGELE ÇÖZÜCÜ ====================
+    // ==================== HAVUZDAN RASTGELE SEÇİCİ ====================
+    _resolveFromPool: function() {
+        const pool = this.settings.seciliTipler;
+        if (!pool || pool.length === 0) {
+            // Fallback: tüm tipler
+            return { tip: 'onluk', basamak: 2 };
+        }
+        // Rastgele bir tip seç
+        const picked = pool[Math.floor(Math.random() * pool.length)];
+        // O tipin basamaklarından rastgele birini seç
+        const basamak = picked.basamaklar[Math.floor(Math.random() * picked.basamaklar.length)];
+        return { tip: picked.tip, basamak: basamak };
+    },
+
+    // Eski _resolveRandom geriye uyumluluk için korunuyor
     _resolveRandom: function() {
-        const configs = [
-            { tip: 'onluk', basamak: [2,3,4,5] },
-            { tip: 'yuzluk', basamak: [3,4,5] },
-            { tip: 'ondalik', basamak: [1,2,3] }
-        ];
-        const picked = configs[Math.floor(Math.random() * configs.length)];
-        return {
-            tip: picked.tip,
-            basamak: picked.basamak[Math.floor(Math.random() * picked.basamak.length)]
-        };
+        return this._resolveFromPool();
     },
 
     // ==================== SAYI ÜRETİCİ ====================
@@ -135,8 +163,10 @@ const YuvarlamaEngine = {
         if (tip === 'onluk') return Math.round(num / 10) * 10;
         if (tip === 'yuzluk') return Math.round(num / 100) * 100;
         if (tip === 'ondalik') {
-            const factor = Math.pow(10, basamak);
-            return Math.round(num * factor) / factor;
+            // Kayan nokta hassasiyet hatasını önlemek için üstel gösterim kullan
+            // Eski yöntem: Math.round(45.245 * 100)/100 = 45.24 (YANLIŞ!)
+            // Yeni yöntem: Math.round(parseFloat("45.245e2")) → 4525 → 45.25 (DOĞRU)
+            return Number(Math.round(parseFloat(num + 'e' + basamak)) + 'e-' + basamak);
         }
         // Güvenlik ağı
         return Math.round(num / 10) * 10;
@@ -177,15 +207,10 @@ const YuvarlamaEngine = {
     },
 
     _createQuestion: function() {
-        // Tip ve basamak çözümle (rastgele modda her soru farklı)
-        let tip = this.settings.yuvarlamaTipi;
-        let basamak = this.settings.basamakSayisi;
-        
-        if (tip === 'rastgele') {
-            const resolved = this._resolveRandom();
-            tip = resolved.tip;
-            basamak = resolved.basamak;
-        }
+        // Her soru için havuzdan rastgele tip+basamak çöz
+        const resolved = this._resolveFromPool();
+        const tip = resolved.tip;
+        const basamak = resolved.basamak;
 
         const num = this._generateNumber(tip, basamak);
         const correct = this._getCorrectAnswer(num, tip, basamak);
@@ -404,8 +429,6 @@ const YuvarlamaEngine = {
 
     // ==================== TEK OYUNCU RENDER ====================
     _renderSolo: function() {
-        const rekor = parseInt(localStorage.getItem('yuvarlama_pisti_rekor') || '0');
-        
         this.container.innerHTML = `
             <div class="dl-top-bar">
                 <div class="dl-progress-bar">
@@ -415,16 +438,26 @@ const YuvarlamaEngine = {
                     <div class="dl-puan-label"><span id="dl-score-p1">0</span> Puan</div>
                     <div class="dl-sure-label" id="dl-timer-value">${this.state.kalanSure}</div>
                     <div class="dl-rekor-area">
-                        <div class="dl-rekor-title">Rekor</div>
-                        <div class="dl-rekor-value" id="dl-rekor-value">${rekor} Puan</div>
+                        <div class="dl-rekor-title">Lider (İlk 5)</div>
+                        <div class="dl-rekor-value" id="dl-rekor-value" style="font-size:16px;">Yükleniyor...</div>
                     </div>
                 </div>
             </div>
             <div class="dl-question-area" id="dl-solo-area">
                 <div class="dl-bg-pattern"></div>
             </div>
+            <div class="dl-options-area" id="dl-solo-options"></div>
             ${this._getControlsHTML()}
         `;
+
+        // Lideri asenkron getir ve yaz
+        if (Derslig.getLeaderboard) {
+            Derslig.getLeaderboard("yuvarlama_pisti_global").then(list => {
+                const rekorStr = list.length > 0 ? `${list[0].score} Puan (${list[0].name})` : "Tüm Zamanlar";
+                const rekorEl = document.getElementById('dl-rekor-value');
+                if (rekorEl) rekorEl.textContent = rekorStr;
+            });
+        }
 
         this._bindGameControls();
         this._loadSoloQuestion();
@@ -467,10 +500,16 @@ const YuvarlamaEngine = {
             btn.className = 'dl-option-btn';
             btn.dataset.val = opt.value;
             btn.textContent = opt.display;
-            btn.addEventListener('click', function() {
-                const v = parseFloat(this.dataset.val);
-                self._handleAnswer(v, this, q.correct, self.state.players[0], area, () => self._loadSoloQuestion());
-            });
+            const eventHandler = function(e) {
+                if (e.type === 'touchstart' && e.cancelable) e.preventDefault();
+                if (btn.dataset.locked === 'true') return;
+                btn.dataset.locked = 'true';
+                setTimeout(() => { btn.dataset.locked = 'false'; }, 400);
+                const v = parseFloat(btn.dataset.val);
+                self._handleAnswer(v, btn, q.correct, self.state.players[0], area, () => self._loadSoloQuestion());
+            };
+            btn.addEventListener('touchstart', eventHandler, {passive: false});
+            btn.addEventListener('click', eventHandler);
             optsRow.appendChild(btn);
         });
         area.appendChild(optsRow);
@@ -559,10 +598,16 @@ const YuvarlamaEngine = {
             btn.className = 'dl-option-btn';
             btn.dataset.val = opt.value;
             btn.textContent = opt.display;
-            btn.addEventListener('click', function() {
-                const v = parseFloat(this.dataset.val);
-                self._handleAnswer(v, this, q.correct, playerState, panel, () => self._loadMultiQuestion(playerIndex));
-            });
+            const eventHandler = function(e) {
+                if (e.type === 'touchstart' && e.cancelable) e.preventDefault();
+                if (btn.dataset.locked === 'true') return;
+                btn.dataset.locked = 'true';
+                setTimeout(() => { btn.dataset.locked = 'false'; }, 400);
+                const v = parseFloat(btn.dataset.val);
+                self._handleAnswer(v, btn, q.correct, playerState, panel, () => self._loadMultiQuestion(playerIndex));
+            };
+            btn.addEventListener('touchstart', eventHandler, {passive: false});
+            btn.addEventListener('click', eventHandler);
             optRow.appendChild(btn);
         });
         panel.appendChild(optRow);
@@ -591,27 +636,125 @@ const YuvarlamaEngine = {
         }
     },
 
-    _showSoloResult: function() {
+    _showSoloResult: async function() {
         const score = this.state.players[0].puan;
-        const storageKey = 'yuvarlama_pisti_rekor';
-        const prevRekor = parseInt(localStorage.getItem(storageKey) || '0');
-        const isNewRecord = score >= 10 && score > prevRekor;
-        if(score > prevRekor) localStorage.setItem(storageKey, score.toString());
+        
+        let isEligible = false;
+        if(Derslig.isEligibleForTop5) {
+            isEligible = await Derslig.isEligibleForTop5(score, "yuvarlama_pisti_global");
+        }
 
         const overlay = document.createElement('div');
         overlay.className = 'dl-result-overlay';
-        overlay.innerHTML = `
+        
+        let contentHtml = `
             <div class="dl-result-score">${score}</div>
             <div class="dl-result-label">Puan</div>
-            ${isNewRecord ? '<div class="dl-result-record">Tebrikler yeni bir rekora sahipsin</div>' : ''}
-            <div class="dl-result-buttons">
-                <button class="dl-result-btn primary" id="result-retry">Tekrar Oyna</button>
-                <button class="dl-result-btn secondary" id="result-exit">Çıkış</button>
+        `;
+
+        if(isEligible && score > 0) {
+            contentHtml += `
+                <div class="dl-lb-input-area" style="margin-top:20px; max-width:400px;">
+                    <div class="dl-lb-input-msg">Tebrikler! İlk 5 sıralamasına girdin.</div>
+                    <input type="text" id="dl-lb-name-input" class="dl-lb-input" placeholder="Sıralama İçin Adını Yaz..." maxlength="25" autocomplete="off">
+                    <button class="dl-lb-btn" id="dl-lb-save-btn">Sıralamaya Kaydet</button>
+                    <button class="dl-lb-btn close" id="dl-lb-skip-btn" style="margin-top:10px;">Kaydetmeden Geç</button>
+                </div>
+            `;
+        } else {
+            contentHtml += `
+                <div class="dl-result-buttons" style="margin-top:30px; display:flex; flex-direction:column; gap:10px;">
+                    <button class="dl-result-btn primary" id="result-retry" style="width:100%;">Tekrar Oyna</button>
+                    <button class="dl-lb-btn close" id="result-show-lb" style="width:100%;">Liderlik Tablosunu Gör</button>
+                    <button class="dl-result-btn secondary" id="result-exit" style="width:100%; border:none;">Ana Menü</button>
+                </div>
+            `;
+        }
+
+        overlay.innerHTML = contentHtml;
+        this.container.appendChild(overlay);
+
+        if(isEligible && score > 0) {
+            const saveBtn = document.getElementById('dl-lb-save-btn');
+            const skipBtn = document.getElementById('dl-lb-skip-btn');
+            const nameInput = document.getElementById('dl-lb-name-input');
+            
+            saveBtn.addEventListener('click', async () => {
+                const name = nameInput.value.trim() || 'Oyuncu';
+                Derslig?.tiklamaSesi?.();
+                if(Derslig.saveToLeaderboard) {
+                    await Derslig.saveToLeaderboard(name, score, "yuvarlama_pisti_global");
+                }
+                overlay.remove();
+                this._showLeaderboardView(name);
+            });
+
+            skipBtn.addEventListener('click', () => {
+                Derslig?.tiklamaSesi?.();
+                overlay.remove();
+                this._showLeaderboardView(null);
+            });
+        } else {
+            document.getElementById('result-retry').addEventListener('click', () => { Derslig?.tiklamaSesi?.(); location.reload(); });
+            document.getElementById('result-exit').addEventListener('click', () => { Derslig?.cikis?.(); });
+            document.getElementById('result-show-lb').addEventListener('click', () => {
+                Derslig?.tiklamaSesi?.();
+                this._showLeaderboardView(null);
+            });
+        }
+    },
+
+    _showLeaderboardView: async function(highlightName = null) {
+        let list = [];
+        if(Derslig.getLeaderboard) {
+            list = await Derslig.getLeaderboard("yuvarlama_pisti_global");
+        }
+
+        const modalDiv = document.createElement('div');
+        modalDiv.className = 'dl-lb-modal';
+        
+        let listHtml = '';
+        if(list.length === 0) {
+            listHtml = '<div style="color:#aaa; text-align:center; padding:20px;">Henüz listeye giren kimse yok. İlk sen ol!</div>';
+        } else {
+            list.forEach((item, index) => {
+                const isMe = highlightName && item.name === highlightName;
+                listHtml += `
+                    <div class="dl-lb-item ${isMe ? 'highlight' : ''}">
+                        <div class="dl-lb-rank">${index + 1}</div>
+                        <div class="dl-lb-name">${item.name}</div>
+                        <div class="dl-lb-score">${item.score}</div>
+                    </div>
+                `;
+            });
+        }
+
+        modalDiv.innerHTML = `
+            <div class="dl-lb-wrapper">
+                <div class="dl-lb-header">
+                    <div class="dl-lb-title">İLK 5 SIRALAMASI</div>
+                    <div class="dl-lb-subtitle">Yuvarlama Kazan! - Genel Puan Durumu</div>
+                </div>
+                <div class="dl-lb-list">
+                    ${listHtml}
+                </div>
+                <div style="display:flex; gap:10px; width:100%;">
+                    <button class="dl-lb-btn" id="dl-lb-final-retry" style="flex:1;">Tekrar Oyna</button>
+                    <button class="dl-lb-btn close" id="dl-lb-final-exit" style="flex:1;">Ana Menü</button>
+                </div>
             </div>
         `;
-        this.container.appendChild(overlay);
-        document.getElementById('result-retry').addEventListener('click', () => location.reload());
-        document.getElementById('result-exit').addEventListener('click', () => Derslig.cikis());
+        
+        this.container.appendChild(modalDiv);
+        
+        document.getElementById('dl-lb-final-retry').addEventListener('click', () => {
+            Derslig?.tiklamaSesi?.();
+            location.reload();
+        });
+        document.getElementById('dl-lb-final-exit').addEventListener('click', () => {
+            Derslig?.tiklamaSesi?.();
+            Derslig?.cikis?.();
+        });
     },
 
     _showMultiResult: function() {
