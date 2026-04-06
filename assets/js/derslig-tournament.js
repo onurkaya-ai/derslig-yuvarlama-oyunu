@@ -670,30 +670,31 @@ const TurnuvaEngine = {
             ctx.fillStyle = "#e50069";
             ctx.font = "800 52px 'Nunito', sans-serif";
             ctx.textAlign = "center";
-            ctx.fillText("derslig", 400, 110);
+            ctx.fillText("derslig", 400, 100);
 
             // Başlık
             ctx.fillStyle = "#00a896";
             ctx.font = "bold 38px 'Georgia', serif";
-            ctx.fillText("BAŞARI SERTİFİKASI", 400, 180);
+            ctx.fillText("BAŞARI SERTİFİKASI", 400, 160);
 
             // Kurumsal Metinler - Teal Renkli
             ctx.fillStyle = "#00a896";
-            ctx.font = "bold 16px 'Nunito', sans-serif";
-            
-            ctx.fillText("Sevgili Öğrencimiz", 230, 240);
+            ctx.font = "bold 18px 'Nunito', sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText("Sevgili Öğrencimiz", 180, 230);
             
             // İsmin Altındaki Çizgili Kısım
             ctx.strokeStyle = "#00a896";
             ctx.setLineDash([3, 3]);
             ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(330, 242); ctx.lineTo(650, 242); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(350, 230); ctx.lineTo(620, 230); ctx.stroke();
             ctx.setLineDash([]); // Reset
 
             // Oyuncu Adı
             ctx.fillStyle = "#e50069"; // Özel Vurgu
-            ctx.font = "800 24px 'Nunito', sans-serif";
-            ctx.fillText(playerName.toUpperCase(), 490, 235);
+            ctx.font = "800 28px 'Nunito', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(playerName.toUpperCase(), 485, 222);
 
             // Gövde Metinleri
             ctx.fillStyle = "#00a896";
@@ -702,35 +703,36 @@ const TurnuvaEngine = {
             const d = new Date();
             const y = d.getFullYear();
             const m = d.toLocaleString('tr-TR', { month: 'long' });
-            ctx.fillText(`${y} - ${y+1} Eğitim-Öğretim Yılı ${m} Ayında`, 400, 280);
+            ctx.fillText(`${y} - ${y+1} Eğitim-Öğretim Yılı ${m} Ayında`, 400, 275);
             
-            ctx.fillText("Matematik becerilerini konuşturan Yuvarlama Kazan! Turnuvası'nda,", 400, 320);
-            ctx.fillText("rakiplerini eleyerek gösterdiğin üstün performans ve", 400, 345);
-            ctx.fillText("şampiyonluk başarısından dolayı seni yürekten tebrik ederiz.", 400, 370);
+            ctx.fillText("Matematik becerilerini konuşturan Yuvarlama Kazan! Turnuvası'nda,", 400, 315);
+            ctx.fillText("rakiplerini eleyerek gösterdiğin üstün performans ve", 400, 340);
+            ctx.fillText("şampiyonluk başarısından dolayı seni yürekten tebrik ederiz.", 400, 365);
 
             ctx.font = "italic bold 16px 'Nunito', sans-serif";
-            ctx.fillText("Akıl yürütme gücünün sana daima rehberlik etmesini", 400, 410);
-            ctx.fillText("ve başarılarının katlanarak artmasını dileriz.", 400, 435);
+            ctx.fillText("Akıl yürütme gücünün sana daima rehberlik etmesini", 400, 400);
+            ctx.fillText("ve başarılarının katlanarak artmasını dileriz.", 400, 425);
 
             // Madalya Çizimi
+            const medY = 480;
             ctx.fillStyle = "#e50069"; // Kurdeleler
-            ctx.beginPath(); ctx.moveTo(370, 460); ctx.lineTo(340, 520); ctx.lineTo(380, 500); ctx.lineTo(390, 460); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(430, 460); ctx.lineTo(460, 520); ctx.lineTo(420, 500); ctx.lineTo(410, 460); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(370, medY); ctx.lineTo(340, medY+60); ctx.lineTo(380, medY+40); ctx.lineTo(390, medY); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(430, medY); ctx.lineTo(460, medY+60); ctx.lineTo(420, medY+40); ctx.lineTo(410, medY); ctx.fill();
 
             ctx.fillStyle = "#00a896"; // Madalya dış halka
-            ctx.beginPath(); ctx.arc(400, 460, 35, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(400, medY, 35, 0, Math.PI*2); ctx.fill();
 
             ctx.fillStyle = "#f7c948"; // Madalya iç sarı
-            ctx.beginPath(); ctx.arc(400, 460, 25, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(400, medY, 25, 0, Math.PI*2); ctx.fill();
             
             ctx.fillStyle = "#00a896";
             ctx.font = "bold 20px Arial";
-            ctx.fillText("🏆", 400, 467);
+            ctx.fillText("🏆", 400, medY + 7);
             
             // Alt Site Adresi
             ctx.fillStyle = "#e50069";
             ctx.font = "900 18px 'Nunito', sans-serif";
-            ctx.fillText("derslig.com", 400, 542);
+            ctx.fillText("derslig.com", 400, 545);
         }
 
         drawCertificate();
