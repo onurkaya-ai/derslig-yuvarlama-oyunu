@@ -30,8 +30,54 @@ const DersligLobby = {
             <div class="dl-lobby-screen" id="dl-lobby-screen">
                 <div class="dl-header-banner">
                     <div class="dl-race-visual">
-                        <img src="../../assets/img/yuvarlama-cover.png" class="dl-banner-bg-img" alt="Yuvarla Kazan kapak görseli">
-                        <div class="dl-banner-overlay"></div>
+                        <svg class="dl-banner-logo-svg" viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#ff6b9d"/>
+                                    <stop offset="100%" style="stop-color:#e50069"/>
+                                </linearGradient>
+                                <linearGradient id="grad-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#ffd700"/>
+                                    <stop offset="100%" style="stop-color:#f7c948"/>
+                                </linearGradient>
+                                <linearGradient id="grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#00e5ff"/>
+                                    <stop offset="100%" style="stop-color:#43c4f7"/>
+                                </linearGradient>
+                                <filter id="shadow">
+                                    <feDropShadow dx="3" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/>
+                                </filter>
+                            </defs>
+                            <!-- YUVARLA yazısı -->
+                            <text x="450" y="95" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="900" font-size="100" fill="white" stroke="#2980b9" stroke-width="3" filter="url(#shadow)" letter-spacing="8">YUVARLA</text>
+                            <!-- KAZAN! yazısı -->
+                            <text x="380" y="178" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="900" font-size="95" fill="url(#grad-yellow)" stroke="#b8860b" stroke-width="2.5" filter="url(#shadow)" letter-spacing="6">KAZAN</text>
+                            <!-- ! ünlem işareti özel -->
+                            <text x="610" y="178" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="900" font-size="105" fill="url(#grad-pink)" stroke="#8b0045" stroke-width="2" filter="url(#shadow)">!</text>
+                            <!-- Yuvarlama ikonu: 83 → 80 -->
+                            <g transform="translate(710, 40)" opacity="0.9">
+                                <text x="0" y="35" font-family="Nunito, sans-serif" font-weight="800" font-size="36" fill="url(#grad-pink)">83</text>
+                                <text x="72" y="35" font-family="Nunito, sans-serif" font-weight="900" font-size="32" fill="white">→</text>
+                                <rect x="105" y="4" width="80" height="42" rx="10" fill="url(#grad-yellow)" opacity="0.9"/>
+                                <text x="145" y="35" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="900" font-size="34" fill="#333">80</text>
+                            </g>
+                            <!-- ≈ sembolü sol -->
+                            <text x="60" y="55" font-family="Nunito, sans-serif" font-weight="900" font-size="50" fill="white" opacity="0.6">≈</text>
+                            <!-- Yuvarlama ikonu: 7.4 → 7 -->
+                            <g transform="translate(35, 110)" opacity="0.7">
+                                <text x="0" y="30" font-family="Nunito, sans-serif" font-weight="700" font-size="26" fill="white">7,4</text>
+                                <text x="45" y="30" font-family="Nunito, sans-serif" font-weight="900" font-size="22" fill="url(#grad-yellow)">→</text>
+                                <text x="70" y="30" font-family="Nunito, sans-serif" font-weight="900" font-size="28" fill="url(#grad-yellow)">7</text>
+                            </g>
+                            <!-- ≈ sembolü sağ -->
+                            <text x="830" y="170" font-family="Nunito, sans-serif" font-weight="900" font-size="45" fill="white" opacity="0.5">≈</text>
+                            <!-- Yuvarlama ikonu: 156 → 160 sağ alt -->
+                            <g transform="translate(680, 135)" opacity="0.65">
+                                <text x="0" y="30" font-family="Nunito, sans-serif" font-weight="700" font-size="24" fill="white">156</text>
+                                <text x="52" y="30" font-family="Nunito, sans-serif" font-weight="900" font-size="20" fill="url(#grad-cyan)">→</text>
+                                <text x="78" y="30" font-family="Nunito, sans-serif" font-weight="900" font-size="26" fill="url(#grad-cyan)">160</text>
+                            </g>
+                        </svg>
                     </div>
                 </div>
 
